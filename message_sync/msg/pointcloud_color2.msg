@@ -1,0 +1,14 @@
+string v_format
+string v_data
+string t_format
+string t_data
+float32 pos_x
+float32 pos_y
+float32 pos_z
+float32 qua_x
+float32 qua_y
+float32 qua_z
+float32 qua_w
+int32 horizontal
+int32 vertical
+string gray_data

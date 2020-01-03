@@ -1,0 +1,11 @@
+<launch> 
+<param name="use_sim_time" value="true" />
+  <node pkg="message_sync" name="sync_gray" type="sync_gray" output="screen" respawn ="true">
+ <param name="odom_topic" value="/odom_localization" />
+ <param name="visible_topic" value="/thermal/image_raw" />
+ <param name="thermal_topic" value="/thermal/image_proc" />
+ <param name="yt_topic" value="/yuntai/position" />
+ <param name="root_path" value="/home/li/capture/1222-1" />
+  <param name="record" value="0" />
+  </node>
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="path_sim" type="test_angular" name="test_angular" output="screen" />
+</launch>

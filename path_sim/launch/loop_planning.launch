@@ -1,0 +1,9 @@
+<launch>
+
+  <include file="$(find path_sim)/launch/loop_planning_server.launch" />
+
+  <include file="$(find path_sim)/launch/loop_planning_client.launch" />
+
+  <include file="$(find path_sim)/launch/c3.launch" />
+
+</launch>

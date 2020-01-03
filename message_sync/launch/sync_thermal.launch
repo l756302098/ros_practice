@@ -1,0 +1,9 @@
+<launch> 
+  <node pkg="message_sync" name="sync_thermal" type="sync_thermal" output="screen" respawn ="true">
+ <param name="odom_topic" value="/odom_localization" />
+ <param name="visible_topic" value="/visible/image_proc/compressed" />
+ <param name="thermal_topic" value="/thermal/image_proc/compressed" />
+ <param name="yt_topic" value="/yuntai/position" />
+ <param name="root_path" value="/home/li/capture/0919" />
+  </node>
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+  <node pkg="path_sim" type="velocity_smoother" name="velocity_smoother" >
+  <param name="raw_cmd_vel_topic" value="/mobile_base/commands/velocity/t" />
+  <param name="smooth_cmd_vel_topic" value="/yida/robot/motor_control" />
+  <param name="odom_topic" value="/mobile_base/commands/velocity/t" />
+  <param name="is_use_odom" value="0" />
+  <param name="frequency" value="100" />
+  <param name="v_max_vel" value="0.3" />
+  <param name="v_min_vel" value="-0.05" />
+  <param name="v_max_acc" value="2" />
+  <param name="v_min_acc" value="-2" />
+  <param name="v_jeck" value="2.0" />
+  <param name="a_max_vel" value="0.5" />
+  <param name="a_min_vel" value="-0.5" />
+  <param name="a_max_acc" value="5" />
+  <param name="a_min_acc" value="-5" />
+  <param name="a_jeck" value="5.0" />
+  </node>
+</launch>

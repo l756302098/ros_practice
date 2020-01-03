@@ -1,0 +1,9 @@
+<launch>
+  
+  <include file="$(find path_sim)/launch/obstacle_avoid_planning.launch" />
+
+  <include file="$(find path_sim)/launch/obstacle_detection.launch" />
+
+  <include file="$(find path_sim)/launch/velocity_smoother.launch" />
+
+</launch>

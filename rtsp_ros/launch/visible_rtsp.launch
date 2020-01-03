@@ -1,0 +1,5 @@
+<launch> 
+  <node pkg="rtsp_ros" name="visible_rtsp" type="visible_rtsp" output="screen" respawn ="true">
+  <param name="camera_id" value="-1" />
+  </node>
+</launch>

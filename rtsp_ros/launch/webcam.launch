@@ -1,0 +1,9 @@
+<launch> 
+  <node pkg="rtsp_ros" name="webcam" type="webcam.py" output="screen" respawn ="true">
+	<param name="topic_name" value="theath" />
+	<param name="image_width" value="1920" />
+	<param name="image_height" value="1080" />
+	<param name="frequency" value="5" />
+	<param name="camera_id" value="1" />
+  </node>
+</launch>

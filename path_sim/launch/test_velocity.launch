@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="path_sim" type="test_velocity" name="test_velocity" output="screen" />
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+  <node pkg="path_sim" type="path_planning" name="path_planning" output="screen" respawn="true" >
+  <param name="a_point" value="22.42 0.7239 0 0 0 -0.67 0.7412" />
+  <param name="b_point" value="24.5780143738 -1.63714253902 0 0 0 -0.711588545329 0.702596429081" />
+  <param name="c_point" value="24.4065437317 -3.13046789169 0 0 0 -0.724015621318 0.689783574817" />
+  <param name="d_point" value="1 0.22 3.66 1 0.22 3.66 0.00" />
+  <param name="max_velocity" value="1.0" />
+  <param name="max_angular" value="1.0" />
+  <param name="cmd_topic" value="/mobile_base/commands/velocity/t" />
+  <param name="frequency" value="10" />
+  </node>
+</launch>
