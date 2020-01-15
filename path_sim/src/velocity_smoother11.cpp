@@ -9,6 +9,8 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+#include <std_srvs/SetBool.h>
+#include <yidamsg/motor_control.h>
 
 #include "c3_algorithm/c2_algorithm.h"
 
@@ -21,12 +23,14 @@ private:
     ros::NodeHandle nh;
     ros::Publisher cmd_pub;
     ros::Subscriber vel_sub, odom_sub;
+    ros::ServiceServer smooth_srv;
     //vel
     double v_max_vel, v_min_vel, v_max_acc, v_min_acc, v_jeck;
     double v_last_pos, v_last_vel, v_last_acc, v_pos, v_vel, v_acc, v_t_pos, v_t_vel, v_t_acc;
     double a_max_vel, a_min_vel, a_max_acc, a_min_acc, a_jeck;
     double a_last_pos, a_last_vel, a_last_acc, a_pos, a_vel, a_acc, a_t_pos, a_t_vel, a_t_acc;
     c2_algorithm vel_c2, ang_c2;
+    bool isSmooth;
 
 public:
     int frequency, is_use_odom;
@@ -35,7 +39,9 @@ public:
     ~c3_class();
     void velocity_cb(const geometry_msgs::Twist::ConstPtr &msg);
     void odom_cb(const nav_msgs::Odometry::ConstPtr &msg);
+    bool smooth_callback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
     void update();
+    void reset();
 };
 
 c3_class::c3_class()
@@ -68,7 +74,9 @@ c3_class::c3_class()
     cout << "v_jeck:" << v_jeck << endl;
     cout << "is_use_odom:" << is_use_odom << endl;
 
-    cmd_pub = nh.advertise<geometry_msgs::Twist>(smooth_vel_topic, 1, true);
+    smooth_srv = nh.advertiseService("/yida/robot/smooth/status", &c3_class::smooth_callback, this);
+    //cmd_pub = nh.advertise<geometry_msgs::Twist>(smooth_vel_topic, 1, true);
+    cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
     vel_sub = nh.subscribe(raw_vel_topic, 1, &c3_class::velocity_cb, this);
     if (is_use_odom >= 1)
     {
@@ -87,6 +95,24 @@ c3_class::c3_class()
 }
 c3_class ::~c3_class()
 {
+}
+
+bool c3_class::smooth_callback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    //change status
+    isSmooth = req.data;
+    if (isSmooth)
+    {
+        reset();
+    }
+    res.success = true;
+    return true;
+}
+
+void c3_class::reset()
+{
+    v_last_pos = 0;
+    v_last_vel = 0;
 }
 
 void c3_class::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
@@ -118,12 +144,15 @@ void c3_class::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
         v_acc = v_last_acc;
         v_t_acc = 0;
         vel_c2.start(v_vel, v_t_vel, v_acc, v_t_acc);
+
+        a_vel = msg->angular.z;
+
         //set angular
-        a_vel = a_last_vel;
-        a_t_vel = msg->angular.z;
-        a_acc = a_last_acc;
-        a_t_acc = 0;
-        ang_c2.start(a_vel, a_t_vel, a_acc, a_t_acc);
+        // a_vel = a_last_vel;
+        // a_t_vel = msg->angular.z;
+        // a_acc = a_last_acc;
+        // a_t_acc = 0;
+        // ang_c2.start(a_vel, a_t_vel, a_acc, a_t_acc);
         mutex.unlock();
     }
 }
@@ -138,22 +167,25 @@ void c3_class::odom_cb(const nav_msgs::Odometry::ConstPtr &msg)
 
 void c3_class::update()
 {
+    if (!isSmooth)
+        return;
     //calc twist
     mutex.lock();
-
+    //只对线速度做平滑，暂时不处理角速度，角速度不接受小数
     vel_c2.get_qk(v_last_acc, v_last_vel, v_acc, v_vel);
     v_last_pos = v_pos;
     v_last_vel = v_vel;
     v_last_acc = v_acc;
 
-    ang_c2.get_qk(a_last_acc, a_last_vel, a_acc, a_vel);
-    a_last_pos = a_pos;
-    a_last_vel = a_vel;
-    a_last_acc = a_acc;
+    // ang_c2.get_qk(a_last_acc, a_last_vel, a_acc, a_vel);
+    // a_last_pos = a_pos;
+    // a_last_vel = a_vel;
+    // a_last_acc = a_acc;
     mutex.unlock();
     //cout << "last_pos:" << last_pos << " last_vel:" << last_vel << " last_acc:" << last_acc << endl;
     //cmd_pub
-    geometry_msgs::Twist motor_control;
+    //geometry_msgs::Twist motor_control;
+    yidamsg::motor_control motor_control;
     if (abs(v_vel) < 0.01)
     {
         v_vel = 0;
@@ -162,8 +194,8 @@ void c3_class::update()
     {
         a_vel = 0;
     }
-    motor_control.linear.x = v_vel;
-    motor_control.angular.z = a_vel;
+    motor_control.speed.linear.x = v_vel;
+    motor_control.speed.angular.z = a_vel;
     cmd_pub.publish(motor_control);
     cout << "deal smooth x:" << v_vel << " z:" << a_vel << endl;
 }
