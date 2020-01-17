@@ -9,8 +9,8 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+
 #include "c3_algorithm/c2_algorithm.h"
-#include <yidamsg/motor_control.h>
 
 using namespace std;
 
@@ -68,7 +68,7 @@ c3_class::c3_class()
     cout << "v_jeck:" << v_jeck << endl;
     cout << "is_use_odom:" << is_use_odom << endl;
 
-    cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
+    cmd_pub = nh.advertise<geometry_msgs::Twist>(smooth_vel_topic, 1, true);
     vel_sub = nh.subscribe(raw_vel_topic, 1, &c3_class::velocity_cb, this);
     if (is_use_odom >= 1)
     {
@@ -153,7 +153,7 @@ void c3_class::update()
     mutex.unlock();
     //cout << "last_pos:" << last_pos << " last_vel:" << last_vel << " last_acc:" << last_acc << endl;
     //cmd_pub
-    yidamsg::motor_control motor_control;
+    geometry_msgs::Twist motor_control;
     if (abs(v_vel) < 0.01)
     {
         v_vel = 0;
@@ -162,9 +162,8 @@ void c3_class::update()
     {
         a_vel = 0;
     }
-    motor_control.control_model = 4;
-    motor_control.speed.linear.x = v_vel;
-    motor_control.speed.angular.z = a_vel;
+    motor_control.linear.x = v_vel;
+    motor_control.angular.z = a_vel;
     cmd_pub.publish(motor_control);
     cout << "deal smooth x:" << v_vel << " z:" << a_vel << endl;
 }

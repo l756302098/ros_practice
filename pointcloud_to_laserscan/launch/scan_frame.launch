@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="pointcloud_to_laserscan" type="scan_frameid_node" name="scan_frameid_node"  output="screen" respawn="false">
+    <!-- See all params at http://wiki.ros.org/pointcloud_to_laserscan -->
+
+    <param name="raw_topic" value="/scan"/>
+    <param name="target_topic" value="/fscan"/>
+    <param name="target_frame" value="laser_link"/>
+
+  </node>
+</launch>

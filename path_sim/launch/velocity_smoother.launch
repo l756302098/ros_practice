@@ -1,6 +1,6 @@
 <launch>
   <node pkg="path_sim" type="velocity_smoother" name="velocity_smoother" >
-  <param name="raw_cmd_vel_topic" value="/mobile_base/commands/velocity/t" />
+  <param name="raw_cmd_vel_topic" value="/cmd_vel" />
   <param name="smooth_cmd_vel_topic" value="/yida/robot/motor_control" />
   <param name="odom_topic" value="/mobile_base/commands/velocity/t" />
   <param name="is_use_odom" value="0" />

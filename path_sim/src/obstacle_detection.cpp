@@ -52,7 +52,7 @@ private:
     uint32_t size_x_, size_y_;
     double origin_x_, origin_y_, resolution_;
     nav_msgs::OccupancyGridPtr grid;
-    bool isAddMap, isHadPos;
+    bool is_add_map, is_had_pos;
     /* robot data */
     unsigned int center_x, center_y;
     Vector4f robot_qua;
@@ -116,7 +116,7 @@ bool obstacle_detection::calc_goal(yidamsg::get_goal::Request &req, yidamsg::get
 {
     cout << "calc new goal" << endl;
     //判断位置
-    if (!isAddMap || !isHadPos)
+    if (!is_add_map || !is_had_pos)
     {
         cout << "waitting for map" << endl;
         res.success = false;
@@ -240,7 +240,7 @@ void obstacle_detection::publishZero(float distance)
 void obstacle_detection::update()
 {
     //判断位置
-    if (!isAddMap)
+    if (!is_add_map)
     {
         ROS_INFO("waitting for map");
         //cout << "waitting for map" << endl;
@@ -248,7 +248,7 @@ void obstacle_detection::update()
         return;
     }
     //判断地图
-    if (!isHadPos)
+    if (!is_had_pos)
     {
         ROS_INFO("waitting for robot pos");
         //cout << "waitting for robot pos" << endl;
@@ -436,7 +436,7 @@ void obstacle_detection::set_map(const nav_msgs::OccupancyGrid::Ptr map)
     size_y_ = map->info.height;
     //cout << "resolution:" << map->info.resolution << "origin_x:" << map->info.origin.position.x << "origin_y:" << map->info.origin.position.y << endl;
     grid = map;
-    isAddMap = true;
+    is_add_map = true;
 }
 
 bool obstacle_detection::worldToMap(double wx, double wy, unsigned int &mx, unsigned int &my) const
@@ -474,7 +474,7 @@ void obstacle_detection::pose_callback(const nav_msgs::OdometryConstPtr &pose_ms
     robot_pose.pose.orientation.z = pose_msg->pose.pose.orientation.z;
     robot_pose.pose.orientation.w = pose_msg->pose.pose.orientation.w;
 
-    isHadPos = true;
+    is_had_pos = true;
     //cout << "get pose " << robot_qua << endl;
 
     // if (!worldToMap(robot_pose.pose.position.x, robot_pose.pose.position.y, center_x, center_y))

@@ -24,10 +24,10 @@
 
 #include <math.h>
 #include "std_msgs/Int16.h"
-#include "std_msgs/Int32.h"
 #include "std_msgs/Float64.h"
-#include "std_msgs/Float32.h"
+#include <yidamsg/auto_obstacle_avoid.h>
 #include <yidamsg/get_goal.h>
+#include <yidamsg/obstacle_avoid_result.h>
 #include <std_srvs/SetBool.h>
 
 using namespace std;
@@ -61,7 +61,6 @@ public:
     double length(Vector3d v1);
     void deal_str(string topic, geometry_msgs::PoseStamped *goal_msg);
     void control_callback(const std_msgs::Int16::ConstPtr &msg);
-    void obstacle_callback(const std_msgs::Float32::ConstPtr &msg);
     std::vector<geometry_msgs::PoseStamped> global_plan;
     void update();
     bool isArrived(double x, double y, double z);
@@ -73,8 +72,8 @@ private:
     ros::ServiceServer planning_srv;
     ros::ServiceClient planning_client, task_mananger_client, smooth_client;
     ros::NodeHandle nh;
-    ros::Publisher cmd_pub, goal_pub, forward_pub, right_pub, avoid_goal_pub, control_model_pub;
-    ros::Subscriber pose_sub, goal_sub, path_sub, control_sub,obstacle_sub;
+    ros::Publisher cmd_pub, goal_pub, forward_pub, right_pub, avoid_goal_pub;
+    ros::Subscriber pose_sub, goal_sub, path_sub, control_sub;
     geometry_msgs::PoseStamped goal, robot_pose, next_pose, a_pose, b_pose, c_pose, d_pose;
     int pos_type, current_num, frequency, follow_num;
     nav_msgs::Path path;
@@ -85,10 +84,9 @@ private:
     float max_velocity, max_angular, xy_goal_tolerance, yaw_goal_tolerance;
     //move_base callback
     float obs_distance;
-    bool is_avoid;
+    bool isAvoid;
     Client *client;
     static int move_base_result;
-    static bool is_obstacle;
     static void activeCb()
     {
         plan_stage = Await;
@@ -114,11 +112,10 @@ private:
     }
 
     //service
-    //bool planning_callback(yidamsg::auto_obstacle_avoid::Request &req, yidamsg::auto_obstacle_avoid::Response &res);
+    bool planning_callback(yidamsg::auto_obstacle_avoid::Request &req, yidamsg::auto_obstacle_avoid::Response &res);
 };
 
 int obstacle_avoid_planning::move_base_result = 0;
-bool obstacle_avoid_planning::is_obstacle = false;
 PlanStage obstacle_avoid_planning::plan_stage = PlanStage::None;
 
 bool obstacle_avoid_planning::isArrived(double x, double y, double z)
@@ -143,21 +140,20 @@ obstacle_avoid_planning ::obstacle_avoid_planning()
     client->waitForServer();
     ROS_INFO("Action server started, sending goal.");
 
-    //planning_srv = nh.advertiseService("/yida/robot/auto_obstacle_avoid", &obstacle_avoid_planning::planning_callback, this);
+    planning_srv = nh.advertiseService("/yida/robot/auto_obstacle_avoid", &obstacle_avoid_planning::planning_callback, this);
     planning_client = nh.serviceClient<yidamsg::get_goal>("/yida/obstacle/new_goal");
-    //task_mananger_client = nh.serviceClient<yidamsg::obstacle_avoid_result>("/yida/robot/obstacle_avoid_result");
+    task_mananger_client = nh.serviceClient<yidamsg::obstacle_avoid_result>("/yida/robot/obstacle_avoid_result");
     smooth_client = nh.serviceClient<std_srvs::SetBool>("/yida/robot/smooth/status");
 
     nh.param<std::string>("/obstacle_avoid_planning/cmd_topic", cmd_topic, "/mobile_base/commands/velocity");
     cout << cmd_topic << endl;
 
+    // forward_pub = nh.advertise<nav_msgs::Odometry>("/path_sim/forward", 1, false);
+    // right_pub = nh.advertise<nav_msgs::Odometry>("/path_sim/right", 1, false);
     path_sub = nh.subscribe("/move_base/GlobalPlanner/plan", 1, &obstacle_avoid_planning::path_callback, this);
-    //pose_sub = nh.subscribe("/odom_localization", 1, &obstacle_avoid_planning::pose_callback, this);
+    pose_sub = nh.subscribe("/odom_localization", 1, &obstacle_avoid_planning::pose_callback, this);
     goal_sub = nh.subscribe("/move_base_simple/goal", 1, &obstacle_avoid_planning::goal_callback, this);
     control_sub = nh.subscribe<std_msgs::Int16>("/obstacle_avoid_planning/sim", 1, &obstacle_avoid_planning::control_callback, this);
-    obstacle_sub = nh.subscribe<std_msgs::Float32>("/yida/robot/obstacle_distance", 1, &obstacle_avoid_planning::obstacle_callback, this);
-
-    control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_model", 1, true);
     cmd_pub = nh.advertise<geometry_msgs::Twist>(cmd_topic, 1, true);
     goal_pub = nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 1, false);
     avoid_goal_pub = nh.advertise<nav_msgs::Odometry>("/yida/avoid/goal", 1, false);
@@ -185,31 +181,13 @@ obstacle_avoid_planning ::~obstacle_avoid_planning()
     global_plan.clear();
 }
 
-// bool obstacle_avoid_planning::planning_callback(yidamsg::auto_obstacle_avoid::Request &req, yidamsg::auto_obstacle_avoid::Response &res)
-// {
-//     ROS_INFO("start avoid from task_manager!");
-//     obs_distance = req.distance;
-//     is_avoid = true;
-//     res.result = true;
-//     return true;
-// }
-
-void obstacle_avoid_planning::obstacle_callback(const std_msgs::Float32::ConstPtr &msg)
+bool obstacle_avoid_planning::planning_callback(yidamsg::auto_obstacle_avoid::Request &req, yidamsg::auto_obstacle_avoid::Response &res)
 {
-    if (msg->data > 0.2 && !obstacle_avoid_planning::is_obstacle)
-    {
-        ROS_INFO("obstacle distance:%.2f", msg->data);
-        obstacle_avoid_planning::is_obstacle = true;
-        is_avoid = true;
-        obs_distance = msg->data;
-        ROS_INFO("change control model:4");
-        //change control model
-        // 0 is task model
-        // 4 is obstacle model
-        std_msgs::Int32 msg;
-        msg.data = 4;
-        control_model_pub.publish(msg);
-    }
+    ROS_INFO("start avoid from task_manager!");
+    obs_distance = req.distance;
+    isAvoid = true;
+    res.result = true;
+    return true;
 }
 
 void obstacle_avoid_planning::path_callback(const nav_msgs::PathConstPtr &path_msg)
@@ -233,51 +211,134 @@ void obstacle_avoid_planning::path_callback(const nav_msgs::PathConstPtr &path_m
 
 void obstacle_avoid_planning::update()
 {
-    if (is_avoid){
+    //处理异步逻辑
+    if (isAvoid)
+    {
+        //请求move_base
         bool isOk = client->isServerConnected();
         if (isOk)
         {
+            //call service get new goal
             yidamsg::get_goal srv;
             srv.request.distance = obs_distance;
             if (planning_client.call(srv))
             {
                 if (srv.response.success)
                 {
-                    move_base_msgs::MoveBaseGoal base_goal;
-                    base_goal.target_pose.header.stamp = ros::Time::now();
-                    base_goal.target_pose.header.frame_id = "map";
+                    //TODO:开启 平滑
+                    std_srvs::SetBool ssrv;
+                    ssrv.request.data = true;
+                    if (smooth_client.call(ssrv))
+                    {
+                        ROS_INFO("open velocity smoother success!");
+                        //set goal
+                        goal.header.stamp = ros::Time::now();
+                        goal.header.frame_id = "map";
+                        goal.pose.position.x = srv.response.pos_x;
+                        goal.pose.position.y = srv.response.pos_y;
+                        goal.pose.position.z = srv.response.pos_z;
+                        goal.pose.orientation.x = srv.response.qua_x;
+                        goal.pose.orientation.y = srv.response.qua_y;
+                        goal.pose.orientation.z = srv.response.qua_z;
+                        goal.pose.orientation.w = srv.response.qua_w;
 
-                    base_goal.target_pose.pose.position.x = srv.response.pos_x;
-                    base_goal.target_pose.pose.position.y = srv.response.pos_y;
-                    base_goal.target_pose.pose.position.z = srv.response.pos_z;
+                        Quaternionf quanternion = Quaternionf(goal.pose.orientation.w, goal.pose.orientation.x, goal.pose.orientation.y, goal.pose.orientation.z);
+                        navigation_qua << goal.pose.position.x, goal.pose.position.y, goal.pose.position.z, radian_to_angle(quanternion.toRotationMatrix().eulerAngles(0, 1, 2)[2]);
 
-                    base_goal.target_pose.pose.orientation.x = srv.response.qua_x;
-                    base_goal.target_pose.pose.orientation.y = srv.response.qua_y;
-                    base_goal.target_pose.pose.orientation.z = srv.response.qua_z;
-                    base_goal.target_pose.pose.orientation.w = srv.response.qua_w;
-                    client->sendGoal(base_goal, &obstacle_avoid_planning::doneCb, &obstacle_avoid_planning::activeCb, &obstacle_avoid_planning::feedbackCb);
-                }else{
-                    ROS_ERROR("failed to get new goal from obstacle_detection！");
+                        cout << "planning respose :";
+                        cout << "pos_x:" << srv.response.pos_x;
+                        cout << "pos_y:" << srv.response.pos_y;
+                        cout << "pos_z:" << srv.response.pos_z;
+                        cout << "qua_x:" << srv.response.qua_x;
+                        cout << "qua_y:" << srv.response.qua_y;
+                        cout << "qua_z:" << srv.response.qua_z;
+                        cout << "qua_w:" << srv.response.qua_w << endl;
+                        move_base_msgs::MoveBaseGoal base_goal;
+                        base_goal.target_pose.header.stamp = ros::Time::now();
+                        base_goal.target_pose.header.frame_id = "map";
+
+                        base_goal.target_pose.pose.position.x = srv.response.pos_x;
+                        base_goal.target_pose.pose.position.y = srv.response.pos_y;
+                        base_goal.target_pose.pose.position.z = srv.response.pos_z;
+
+                        base_goal.target_pose.pose.orientation.x = srv.response.qua_x;
+                        base_goal.target_pose.pose.orientation.y = srv.response.qua_y;
+                        base_goal.target_pose.pose.orientation.z = srv.response.qua_z;
+                        base_goal.target_pose.pose.orientation.w = srv.response.qua_w;
+                        client->sendGoal(base_goal, &obstacle_avoid_planning::doneCb, &obstacle_avoid_planning::activeCb, &obstacle_avoid_planning::feedbackCb);
+                    }
+                    else
+                    {
+                        ROS_ERROR("open velocity smoother failed!");
+                        obstacle_avoid_planning::move_base_result = 2;
+                    }
+                }
+                else
+                {
                     obstacle_avoid_planning::move_base_result = 2;
                 }
-            }else{
+            }
+            else
+            {
                 ROS_ERROR("failed to get new goal from obstacle_detection！");
                 obstacle_avoid_planning::move_base_result = 2;
             }
-        }else{
-            ROS_ERROR("client is disconnect!");
+        }
+        else
+        {
             obstacle_avoid_planning::move_base_result = 2;
         }
-        is_avoid = false;
-    }
 
-    if (obstacle_avoid_planning::move_base_result > 0){
+        isAvoid = false;
+    }
+    if (obstacle_avoid_planning::move_base_result > 0)
+    {
+        plan_stage = Finish;
+        geometry_msgs::Twist motor_control;
+        motor_control.linear.x = 0;
+        motor_control.angular.z = 0;
+        cmd_pub.publish(motor_control);
+
+        yidamsg::obstacle_avoid_result srv;
+        srv.request.flag = obstacle_avoid_planning::move_base_result == 1 ? 1 : 0;
+        if (task_mananger_client.call(srv))
+        {
+            ROS_INFO("get task_mananger response");
+        }
+        else
+        {
+            ROS_ERROR("task_mananger response error");
+        }
         obstacle_avoid_planning::move_base_result = 0;
-        //change control model
-        ROS_INFO("change control model:0");
-        std_msgs::Int32 msg;
-        msg.data = 0;
-        control_model_pub.publish(msg);
+        //TODO:关闭 平滑
+        std_srvs::SetBool ssrv;
+        ssrv.request.data = false;
+        if (smooth_client.call(ssrv))
+        {
+            ROS_INFO("close velocity smoother success!");
+        }
+        else
+        {
+            ROS_ERROR("close velocity smoother failed!");
+        }
+    }
+    //计算下一个目标点
+    if (global_plan.size() < 1)
+    {
+        ROS_DEBUG("waiting for path ");
+        return;
+    }
+    //cout << "have global plan " << endl;
+    path_mutex.lock();
+    int path_size = (follow_num < global_plan.size()) ? follow_num : global_plan.size();
+    next_goal = Vector3d(0, 0, 0);
+    next_goal[0] = path.poses[path_size - 1].pose.position.x;
+    next_goal[1] = path.poses[path_size - 1].pose.position.y;
+    next_goal[2] = path.poses[path_size - 1].pose.position.z;
+    path_mutex.unlock();
+    if (plan_stage == Await)
+    {
+        plan_stage = Plan;
     }
 }
 
