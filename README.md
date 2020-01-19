@@ -42,4 +42,13 @@ Here are some of the functions I use in my work.
   
 # PID
 ## PControl
-https://github.com/l756302098/ros_practice/tree/master/PID/Figure_1.png
+<img src="https://github.com/l756302098/ros_practice/tree/master/PID/Figure_1.png" alt="PControl" width="400"/>
+
+## PIControl
+<img src="https://github.com/l756302098/ros_practice/tree/master/PID/Figure_2.png" alt="PIControl" width="400"/>
+
+## PIDControl
+<img src="https://github.com/l756302098/ros_practice/tree/master/PID/Figure_3.png" alt="PIDControl" width="400"/>
+
+## 调整参数后
+<img src="https://github.com/l756302098/ros_practice/tree/master/PID/Figure_4.png" alt="PControl" width="400"/>
