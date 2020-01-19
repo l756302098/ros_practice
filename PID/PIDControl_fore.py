@@ -7,7 +7,6 @@ import numpy as np
  
 import matplotlib.pyplot as plt
  
- 
 class Robot(object):
  
   def __init__(self, length=20.0):
@@ -52,6 +51,10 @@ class Robot(object):
       Sets thenoise parameters.
     """
  
+    # makes itpossible to change the noise parameters
+ 
+    # this isoften useful in particle filters
+ 
     self.steering_noise = steering_noise
  
     self.distance_noise = distance_noise
@@ -86,21 +89,21 @@ class Robot(object):
     if distance< 0.0:
  
       distance= 0.0
- 
+
     # apply noise
     steering2 =random.gauss(steering, self.steering_noise)
- 
     distance2 =random.gauss(distance, self.distance_noise)
-
+ 
     # applysteering drift
     steering2 +=self.steering_drift
  
+
     # Execute motion
     turn =np.tan(steering2) * distance2 / self.length
- 
- 
- 
+
     if abs(turn)< tolerance:
+ 
+      #approximate by straight line motion
  
       self.x +=distance2 * np.cos(self.orientation)
  
@@ -109,6 +112,8 @@ class Robot(object):
       self.orientation = (self.orientation + turn) % (2.0 * np.pi)
  
     else:
+ 
+      #approximate bicycle model for motion
  
       radius =distance2 / turn
  
@@ -126,8 +131,8 @@ class Robot(object):
  
   def __repr__(self):
  
-    return '[x=%.5f y=%.5f orient=%.5f]' % (self.x, self.y, self.orientation)
-    
+    return'[x=%.5f y=%.5f orient=%.5f]' % (self.x, self.y, self.orientation)
+
  
 def run_p(robot, tau, n=100, speed=1.0):
  
@@ -155,16 +160,18 @@ robot = Robot()
  
 robot.set(0, 1, 0)
 
-robot.set_noise(0.1,0.05)
+robot.set_noise(0.01,0.01)
  
 
-def run(robot, tau, n=100, speed=1.0):
+def run(robot, tau_p, tau_d, tau_i, n=100, speed=1.0):
  
   x_trajectory = []
  
   y_trajectory = []
  
-  crosstrack_error = []
+  #steering =-tau_p * CTE - tau_d * diff_CTE - tau_i * int_CTE
+ 
+  crosstrack_error= []
  
   crosstrack_error.append(0.0)
  
@@ -179,10 +186,11 @@ def run(robot, tau, n=100, speed=1.0):
   distance = 0.0
  
  
-  print("tau:",tau)
+ 
   for i in range(n):
  
-    steering = -1 * tau
+    steering = -tau_p * crosstrack_error[i] - \
+        tau_d * diff_CTE - tau_i * sum(crosstrack_error)
  
     distance =speed
  
@@ -198,24 +206,27 @@ def run(robot, tau, n=100, speed=1.0):
  
     y1 = startY +(x1 - startX) * np.tan(startOrientation)
  
-    crosstrack_error = (robot.y - y1) * np.cos(startOrientation)
+    crosstrack =(robot.y - y1) * np.cos(startOrientation)
  
-    print("{} [{}, {}] {}".format(i,robot.x, robot.y,steering))
+    crosstrack_error.append(crosstrack)
+ 
+    diff_CTE =crosstrack_error[i+1] - crosstrack_error[i]
+ 
+    print("{} [{}, {}] {}, {}".format(i,robot.x, robot.y,steering, crosstrack))
+ 
        
  
   return x_trajectory, y_trajectory
  
    
-x_trajectory, y_trajectory = run_p(robot,0.1)
+x_trajectory, y_trajectory = run(robot,0.1, 1.0, 0.322)
 
 n = len(x_trajectory)
 
-print("length:{}",n)
-
 fig, ax1 = plt.subplots(1, 1, figsize=(8, 8))
- 
-ax1.plot(x_trajectory, y_trajectory, 'g', label='Pcontroller')
- 
+
+ax1.plot(x_trajectory, y_trajectory, 'g', label='PDcontroller')
+
 ax1.plot(x_trajectory, np.zeros(n), 'r', label='reference')
 
 plt.show()

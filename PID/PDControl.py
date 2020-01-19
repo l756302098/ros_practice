@@ -222,7 +222,7 @@ x_trajectory, y_trajectory = run(robot, 0.1, 1.0)
 
 n = len(x_trajectory)
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+fig, ax1 = plt.subplots(1, 1, figsize=(8, 8))
 
 ax1.plot(x_trajectory, y_trajectory, 'g', label='PDcontroller')
 
