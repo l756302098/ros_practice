@@ -219,7 +219,7 @@ def run(robot, tau_p, tau_d, tau_i, n=100, speed=1.0):
   return x_trajectory, y_trajectory
  
    
-x_trajectory, y_trajectory = run(robot, 2.56, 26.32, 0.322)
+x_trajectory, y_trajectory = run(robot,2.566, 26.321, 0.322)
 
 n = len(x_trajectory)
 
