@@ -39,3 +39,7 @@ Here are some of the functions I use in my work.
   
 * [path_sim]
   结合 navigation stack 实现检测障碍物
+  
+# PID
+## PControl
+https://github.com/l756302098/ros_practice/tree/master/PID/Figure_1.png
