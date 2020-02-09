@@ -1,0 +1,35 @@
+<!-- 
+  Simulate a carlike robot with the teb_local_planner in stage:
+  - stage
+  - map_server
+  - move_base
+  - static map
+  - amcl
+  - rviz view
+ -->
+<launch>
+	<arg name="workspace" value="/home/li/catkin_ws/src/move_base"/>
+
+<param name="use_sim_time" value="false" />
+
+<node pkg="tf" type="static_transform_publisher" name="velodyne_to_odom" args="0.0 0.0 0.0 0 0 0.0 /velodyne /odom 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_base" args="0.0 0.0 0.0 0 0 0.0 /odom /base_link 10"/>
+    <node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.0 0.0 0.0 0 0 0.0 /base_link /laser_link 10"/>
+	<!--  ****** Maps *****  -->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg workspace)/maps/22.yaml" output="screen">
+		<param name="frame_id" value="/map"/>
+	</node>
+
+        <!--  ************** Navigation ***************  -->
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<!-- costmap -->
+  	  	<rosparam file="$(arg workspace)/new_params/costmap_common_params.yaml" command="load" ns="global_costmap" />
+  	 	<rosparam file="$(arg workspace)/new_params/costmap_common_params.yaml" command="load" ns="local_costmap" />
+  		<rosparam file="$(arg workspace)/new_params/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(arg workspace)/new_params/local_costmap_params.yaml" command="load" />
+		<!-- planner -->
+		<rosparam file="$(arg workspace)/new_params/move_base_params.yaml" command="load" />
+		<rosparam file="$(arg workspace)/new_params/global_planner_params.yaml" command="load" />
+		<rosparam file="$(arg workspace)/new_params/dwa_planner_params.yaml" command="load" />
+	</node>
+</launch>

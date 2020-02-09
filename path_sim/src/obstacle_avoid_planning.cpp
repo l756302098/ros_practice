@@ -73,7 +73,7 @@ private:
     ros::ServiceServer planning_srv;
     ros::ServiceClient planning_client, task_mananger_client, smooth_client;
     ros::NodeHandle nh;
-    ros::Publisher cmd_pub, goal_pub, forward_pub, right_pub, avoid_goal_pub, control_model_pub;
+    ros::Publisher cmd_pub, goal_pub, forward_pub, right_pub, avoid_goal_pub, obstacle_pub,control_model_pub;
     ros::Subscriber pose_sub, goal_sub, path_sub, control_sub,obstacle_sub;
     geometry_msgs::PoseStamped goal, robot_pose, next_pose, a_pose, b_pose, c_pose, d_pose;
     int pos_type, current_num, frequency, follow_num;
@@ -158,6 +158,7 @@ obstacle_avoid_planning ::obstacle_avoid_planning()
     obstacle_sub = nh.subscribe<std_msgs::Float32>("/yida/robot/obstacle_distance", 1, &obstacle_avoid_planning::obstacle_callback, this);
 
     control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_model", 1, true);
+    obstacle_pub = nh.advertise<std_msgs::Int32>("/yida/obstacle/type", 1, true);
     cmd_pub = nh.advertise<geometry_msgs::Twist>(cmd_topic, 1, true);
     goal_pub = nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 1, false);
     avoid_goal_pub = nh.advertise<nav_msgs::Odometry>("/yida/avoid/goal", 1, false);
@@ -272,12 +273,16 @@ void obstacle_avoid_planning::update()
     }
 
     if (obstacle_avoid_planning::move_base_result > 0){
-        obstacle_avoid_planning::move_base_result = 0;
         //change control model
         ROS_INFO("change control model:0");
         std_msgs::Int32 msg;
         msg.data = 0;
         control_model_pub.publish(msg);
+
+        std_msgs::Int32 msg2;
+        msg2.data = obstacle_avoid_planning::move_base_result;
+        obstacle_pub.publish(msg2);
+        obstacle_avoid_planning::move_base_result = 0;
     }
 }
 

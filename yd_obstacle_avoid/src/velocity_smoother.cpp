@@ -9,36 +9,11 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
-#include "c3_algorithm/c2_algorithm.h"
+#include <yd_obstacle_avoid/c2_algorithm.h>
 #include <yidamsg/motor_control.h>
+#include <yd_obstacle_avoid/velocity_smoother.h>
 
-using namespace std;
-
-class c3_class
-{
-private:
-    boost::mutex mutex;
-    ros::NodeHandle nh;
-    ros::Publisher cmd_pub;
-    ros::Subscriber vel_sub, odom_sub;
-    //vel
-    double v_max_vel, v_min_vel, v_max_acc, v_min_acc, v_jeck;
-    double v_last_pos, v_last_vel, v_last_acc, v_pos, v_vel, v_acc, v_t_pos, v_t_vel, v_t_acc;
-    double a_max_vel, a_min_vel, a_max_acc, a_min_acc, a_jeck;
-    double a_last_pos, a_last_vel, a_last_acc, a_pos, a_vel, a_acc, a_t_pos, a_t_vel, a_t_acc;
-    c2_algorithm vel_c2, ang_c2;
-
-public:
-    int frequency, is_use_odom;
-    std::string smooth_vel_topic, raw_vel_topic, odom_topic;
-    c3_class();
-    ~c3_class();
-    void velocity_cb(const geometry_msgs::Twist::ConstPtr &msg);
-    void odom_cb(const nav_msgs::Odometry::ConstPtr &msg);
-    void update();
-};
-
-c3_class::c3_class()
+velocity_smoother::velocity_smoother()
 {
     nh.param<int>("/velocity_smoother/frequency", frequency, 100);
     nh.param<int>("/velocity_smoother/is_use_odom", is_use_odom, 0);
@@ -55,7 +30,7 @@ c3_class::c3_class()
     nh.param<double>("/velocity_smoother/a_jeck", a_jeck, 0.0);
     nh.param<std::string>("/velocity_smoother/raw_cmd_vel_topic", raw_vel_topic, "");
     {
-        odom_sub = nh.subscribe(odom_topic, 1, &c3_class::odom_cb, this);
+        odom_sub = nh.subscribe(odom_topic, 1, &velocity_smoother::odom_cb, this);
     }
 
     v_last_pos = 0;
@@ -68,11 +43,11 @@ c3_class::c3_class()
     vel_c2.init(v_min_vel, v_max_vel, v_min_acc, v_max_acc, v_jeck, frequency);
     ang_c2.init(a_min_vel, a_max_vel, a_min_acc, a_max_acc, a_jeck, frequency);
 }
-c3_class ::~c3_class()
+velocity_smoother ::~velocity_smoother()
 {
 }
 
-void c3_class::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
+void velocity_smoother::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
 {
     cout << "get raw x:" << v_t_vel << " z:" << a_t_vel << endl;
     if (is_use_odom >= 1)
@@ -111,7 +86,7 @@ void c3_class::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
     }
 }
 
-void c3_class::odom_cb(const nav_msgs::Odometry::ConstPtr &msg)
+void velocity_smoother::odom_cb(const nav_msgs::Odometry::ConstPtr &msg)
 {
     mutex.lock();
     v_vel = msg->twist.twist.linear.x;
@@ -119,7 +94,7 @@ void c3_class::odom_cb(const nav_msgs::Odometry::ConstPtr &msg)
     mutex.unlock();
 }
 
-void c3_class::update()
+void velocity_smoother::update()
 {
     //calc twist
     mutex.lock();
@@ -154,16 +129,16 @@ void c3_class::update()
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "velocity_smoother");
+    ros::init(argc, argv, "yd_velocity_smoother");
 
-    c3_class c3;
+    velocity_smoother vs;
 
     //set frequency
-    ros::Rate rate(c3.frequency);
+    ros::Rate rate(vs.frequency);
 
     while (ros::ok())
     {
-        c3.update();
+        vs.update();
         ros::spinOnce();
         rate.sleep();
     }
