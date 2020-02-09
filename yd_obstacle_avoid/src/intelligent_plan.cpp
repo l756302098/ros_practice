@@ -46,7 +46,7 @@ intelligent_plan::intelligent_plan(/* args */)
     task_sub = nh.subscribe(task_topic, 1, &obstacle_detection::task_status, &od);
     //other
     control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_model", 1, true);
-    obstacle_pub = nh.advertise<std_msgs::Int32>("/yida/obstacle/type", 1, true);
+    obstacle_pub = nh.advertise<std_msgs::Int32>("/yida/obstacle_avoid/result", 1, true);
     hearbeat_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/yida/hearbeat", 1, true);
 
     connect_server();
