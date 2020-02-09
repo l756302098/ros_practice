@@ -52,7 +52,7 @@ public:
     intelligent_plan(/* args */);
     ~intelligent_plan();
     void update();
-    void pub_hearbeat(int level, string message);
+    void pub_hearbeat(int level, string message = "");
     //communication with move_base
     Client *client;
     static PlanStage plan_stage;

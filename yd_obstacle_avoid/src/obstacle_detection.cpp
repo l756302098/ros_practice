@@ -36,9 +36,9 @@ typedef Matrix<float, 4, 1> Vector4f;
 
 obstacle_detection::obstacle_detection(/* args */)
 {
-    nh.param<float>("/obstacle_detection/robot_width", robot_width, 0.6);
-    nh.param<float>("/obstacle_detection/detection_length", detection_length, 2.0);
-    nh.param<float>("/obstacle_detection/road_min", road_min, 5.0);
+    nh.param<float>("/intelligent_plan_node/robot_width", robot_width, 0.6);
+    nh.param<float>("/intelligent_plan_node/detection_length", detection_length, 2.0);
+    nh.param<float>("/intelligent_plan_node/road_min", road_min, 5.0);
 
     cout << "robot_width:" << robot_width << endl;
     cout << "detection_length:" << detection_length << endl;

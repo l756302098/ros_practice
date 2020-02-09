@@ -34,9 +34,9 @@ intelligent_plan::intelligent_plan(/* args */)
     ros::NodeHandle nh;
 
     string localmap_topic, odom_topic, task_topic;
-    nh.param<string>("/intelligent_plan/localmap_topic", localmap_topic, "/move_base/global_costmap/costmap");
-    nh.param<string>("/intelligent_plan/odom_topic", odom_topic, "/odom_localization");
-    nh.param<string>("/intelligent_plan/task_topic", task_topic, "/task_status");
+    nh.param<string>("/intelligent_plan_node/localmap_topic", localmap_topic, "/move_base/global_costmap/costmap");
+    nh.param<string>("/intelligent_plan_node/odom_topic", odom_topic, "/odom_localization");
+    nh.param<string>("/intelligent_plan_node/task_topic", task_topic, "/task_status");
     cout << "localmap_topic:" << localmap_topic;
     cout << " odom_topic:" << odom_topic;
     cout << " task_topic:" << task_topic << endl;
@@ -137,7 +137,7 @@ void intelligent_plan::update()
     }
 }
 
-void intelligent_plan::pub_hearbeat(int level, string message = "")
+void intelligent_plan::pub_hearbeat(int level, string message)
 {
     diagnostic_msgs::DiagnosticArray log;
     log.header.stamp = ros::Time::now();
