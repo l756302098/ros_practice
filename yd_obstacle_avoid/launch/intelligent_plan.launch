@@ -1,7 +1,7 @@
 <launch>
-  <!--
+
   <include file="$(find yd_obstacle_avoid)/launch/navigation.launch" />
--->
+
   <node pkg="yd_obstacle_avoid" type="intelligent_plan_node" name="intelligent_plan_node" output="screen" respawn="false" >
     <param name="localmap_topic" value="/move_base/global_costmap/costmap" />
     <param name="odom_topic" value="/odom_localization" />
@@ -11,7 +11,7 @@
     <param name="detection_length" value="2.0" />
     <param name="road_min" value="5.0" />
   </node>
-<!--
+
   <include file="$(find yd_obstacle_avoid)/launch/velocity_smoother.launch" />
--->
+
 </launch>
