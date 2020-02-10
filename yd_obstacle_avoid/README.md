@@ -17,7 +17,7 @@ navigation 的规划来实现行走.
 
 ## Prepare  
 
-1.准备地图文件,放置在 ./yd_obstacle_avoid/maps/ 下,并修改 navigation.launch 中的map 参数
+1.准备地图文件,放置在 ./yd_obstacle_avoid/maps/ 下,并修改 navigation.launch 中的map 参数  
 2.测试地图文件是否可用  
 
 * **启动**: roslaunch yd_obstacle_avoid navigation.launch  
@@ -37,7 +37,7 @@ roslaunch yd_obstacle_avoid intelligent_plan.launch
 
 1./yida/robot/control_model (std_msgs::Int32)  
 2./yida/obstacle_avoid/result (std_msgs::Int32)  
-3./yida/hearbeat (diagnostic_msgs::DiagnosticArray)  
+3./yida/hearbeat (diagnostic_msgs::DiagnosticArray) HZ:10 
 
 ### Params
 
