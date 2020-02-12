@@ -11,6 +11,8 @@
 #include <nav_msgs/Odometry.h>
 #include <yidamsg/motor_control.h>
 
+#include <yd_obstacle_avoid/c2_algorithm.h>
+
 #ifndef VELOCITY_SMOOTHER_VALUES_H_
 #define VELOCITY_SMOOTHER_VALUES_H_
 

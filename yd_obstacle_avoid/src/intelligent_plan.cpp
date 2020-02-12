@@ -31,29 +31,66 @@ typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
 intelligent_plan::intelligent_plan(/* args */)
 {
-    ros::NodeHandle nh;
+    //connect_server();
 
     string localmap_topic, odom_topic, task_topic;
     nh.param<string>("/intelligent_plan_node/localmap_topic", localmap_topic, "/move_base/global_costmap/costmap");
     nh.param<string>("/intelligent_plan_node/odom_topic", odom_topic, "/odom_localization");
     nh.param<string>("/intelligent_plan_node/task_topic", task_topic, "/task_status");
+
+    nh.param<int>("/intelligent_plan_node/smoother_frequency", smoother_frequency_, 10);
+    nh.param<int>("/intelligent_plan_node/pc2laser_frequency", pc2laser_frequency_, 5);
     cout << "localmap_topic:" << localmap_topic;
     cout << " odom_topic:" << odom_topic;
     cout << " task_topic:" << task_topic << endl;
+    /**/
     //obstacle_detection
+    ROS_INFO("obstacle detection init");
     robot_pose_sub = nh.subscribe(odom_topic, 1, &obstacle_detection::pose_callback, &od);
     map_sub = nh.subscribe(localmap_topic, 1, &obstacle_detection::set_map, &od);
     task_sub = nh.subscribe(task_topic, 1, &obstacle_detection::task_status, &od);
+    ROS_INFO("other init");
     //other
-    control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_model", 1, true);
+    control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_mode", 1, true);
     obstacle_pub = nh.advertise<std_msgs::Int32>("/yida/obstacle_avoid/result", 1, true);
     hearbeat_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/yida/hearbeat", 1, true);
-
-    connect_server();
+    
+    ROS_INFO("smoother_thread_ init");
+    smoother_thread_ = new boost::thread(boost::bind(&intelligent_plan::smoother_thread, this));
+    ROS_INFO("pc2laser_thread_ init");
+    pc2laser_thread_ = new boost::thread(boost::bind(&intelligent_plan::pc2laser_thread, this));
 }
 
 intelligent_plan::~intelligent_plan()
 {
+}
+
+void intelligent_plan::smoother_thread()
+{
+    if (smoother_frequency_ <= 0)
+        return;
+    //calc usleep(1000);
+    int sleep_time = 1000 / smoother_frequency_;
+    while (ros::ok())
+    {
+        //ROS_INFO("smoother update");
+        vs.update();
+        usleep(sleep_time);
+    }
+}
+
+void intelligent_plan::pc2laser_thread()
+{
+    if (pc2laser_frequency_ <= 0)
+        return;
+    //calc usleep(1000);
+    int sleep_time = 1000 / pc2laser_frequency_;
+    while (ros::ok())
+    {
+        //ROS_INFO("smoother update");
+        ps.deal_queue();
+        usleep(sleep_time);
+    }
 }
 
 void intelligent_plan::control_mode(int model)

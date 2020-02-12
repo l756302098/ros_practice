@@ -30,12 +30,12 @@ roslaunch yd_obstacle_avoid intelligent_plan.launch
 ### Subscribed Topics
 
 1./move_base/global_costmap/costmap (geometry_msgs/PoseStamped)  
-2./odom_localization (nav_msgs::Odometry)  
+2./robot_pose (nav_msgs::Odometry)  
 3./task_status (yidamsg/task_status)  
 
 ### Published Topics
 
-1./yida/robot/control_model (std_msgs::Int32)  
+1./yida/robot/control_mode (std_msgs::Int32)  
 2./yida/obstacle_avoid/result (std_msgs::Int32)  
 3./yida/hearbeat (diagnostic_msgs::DiagnosticArray) HZ:10 
 

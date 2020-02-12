@@ -21,6 +21,8 @@
 #include <Eigen/Geometry>
 
 #include <yd_obstacle_avoid/obstacle_detection.h>
+#include <yd_obstacle_avoid/velocity_smoother.h>
+#include <yd_obstacle_avoid/pc2ls.h>
 
 #ifndef INTELLIGENT_PLAN_VALUES_H_
 #define INTELLIGENT_PLAN_VALUES_H_
@@ -44,15 +46,23 @@ private:
     ros::Publisher control_model_pub, obstacle_pub, hearbeat_pub;
     ros::Subscriber robot_pose_sub, map_sub, task_sub;
     obstacle_detection od;
+    velocity_smoother vs;
+    pc2ls ps;
     float obs_dis;
     void control_mode(int model);
     void connect_server();
+    ros::NodeHandle nh;
+    boost::thread *smoother_thread_, *pc2laser_thread_;
+    int smoother_frequency_, pc2laser_frequency_;
 
 public:
     intelligent_plan(/* args */);
     ~intelligent_plan();
     void update();
     void pub_hearbeat(int level, string message = "");
+    //thread
+    void smoother_thread();
+    void pc2laser_thread();
     //communication with move_base
     Client *client;
     static PlanStage plan_stage;

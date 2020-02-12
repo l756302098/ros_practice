@@ -15,21 +15,22 @@
 
 velocity_smoother::velocity_smoother()
 {
-    nh.param<double>("/intelligent_plan_node/v_max_vel", v_max_vel, 0.3);
-    nh.param<double>("/intelligent_plan_node/v_min_vel", v_min_vel, 0.0);
-    nh.param<double>("/intelligent_plan_node/v_max_acc", v_max_acc, 0.0);
-    nh.param<double>("/intelligent_plan_node/v_min_acc", v_min_acc, 0.0);
-    nh.param<double>("/intelligent_plan_node/v_jeck", v_jeck, 0.0);
+    nh.param<int>("/yd_velocity_smoother/frequency", frequency, 100);
+    nh.param<double>("/yd_velocity_smoother/v_max_vel", v_max_vel, 0.3);
+    nh.param<double>("/yd_velocity_smoother/v_min_vel", v_min_vel, 0.0);
+    nh.param<double>("/yd_velocity_smoother/v_max_acc", v_max_acc, 0.0);
+    nh.param<double>("/yd_velocity_smoother/v_min_acc", v_min_acc, 0.0);
+    nh.param<double>("/yd_velocity_smoother/v_jeck", v_jeck, 0.0);
 
-    nh.param<double>("/intelligent_plan_node/a_max_vel", a_max_vel, 0.3);
-    nh.param<double>("/intelligent_plan_node/a_min_vel", a_min_vel, 0.0);
-    nh.param<double>("/intelligent_plan_node/a_max_acc", a_max_acc, 0.0);
-    nh.param<double>("/intelligent_plan_node/a_min_acc", a_min_acc, 0.0);
-    nh.param<double>("/intelligent_plan_node/a_jeck", a_jeck, 0.0);
+    nh.param<double>("/yd_velocity_smoother/a_max_vel", a_max_vel, 0.3);
+    nh.param<double>("/yd_velocity_smoother/a_min_vel", a_min_vel, 0.0);
+    nh.param<double>("/yd_velocity_smoother/a_max_acc", a_max_acc, 0.0);
+    nh.param<double>("/yd_velocity_smoother/a_min_acc", a_min_acc, 0.0);
+    nh.param<double>("/yd_velocity_smoother/a_jeck", a_jeck, 0.0);
 
-    nh.param<std::string>("/intelligent_plan_node/raw_cmd_vel_topic", raw_vel_topic, "");
-    nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
-    nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", odom_topic, "");
+    nh.param<std::string>("/yd_velocity_smoother/raw_cmd_vel_topic", raw_vel_topic, "");
+    nh.param<std::string>("/yd_velocity_smoother/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
+    nh.param<std::string>("/yd_velocity_smoother/odom_topic", odom_topic, "");
 
     cout << "smooth_vel_topic:" << smooth_vel_topic << endl;
     cout << "raw_vel_topic:" << raw_vel_topic << endl;
@@ -43,6 +44,7 @@ velocity_smoother::velocity_smoother()
 
     cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
     vel_sub = nh.subscribe(raw_vel_topic, 1, &velocity_smoother::velocity_cb, this);
+    nh.param<std::string>("/velocity_smoother/odom_topic", odom_topic, "");
     if (!odom_topic.empty())
     {
         ROS_INFO("node add subscribe odom_topic");
@@ -146,10 +148,10 @@ void velocity_smoother::update()
     cmd_pub.publish(motor_control);
     ROS_DEBUG_STREAM("deal smooth x:" << v_vel << " z:" << a_vel << endl);
 }
-/*
+
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "intelligent_plan_node");
+    ros::init(argc, argv, "yd_velocity_smoother");
 
     velocity_smoother vs;
 
@@ -165,4 +167,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-*/

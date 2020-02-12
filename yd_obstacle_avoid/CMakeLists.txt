@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   move_base_msgs
   diagnostic_msgs
+  tf2
+  tf2_ros
+  tf2_sensor_msgs
 )
 find_package(PCL 1.7 REQUIRED)
 
@@ -22,6 +25,9 @@ catkin_package(
    LIBRARIES
    move_base_msgs
    diagnostic_msgs
+   tf2
+   tf2_ros
+   tf2_sensor_msgs
 )
 
 add_library(yd_obstacle_avoid
@@ -29,6 +35,7 @@ add_library(yd_obstacle_avoid
   src/velocity_smoother.cpp
   src/obstacle_detection.cpp
   src/intelligent_plan.cpp
+  src/pc2ls.cpp
 )
 
 add_dependencies(yd_obstacle_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -43,12 +50,19 @@ include_directories(${PROJECT_SOURCE_DIR}/include
   ${PCL_INCLUDE_DIRS}
 )
 
-add_executable(yd_velocity_smoother src/velocity_smoother.cpp)
-target_link_libraries(yd_velocity_smoother
-  yd_obstacle_avoid
-  ${CORE_LIBRARY} 
-  ${catkin_LIBRARIES}
-)
+#add_executable(yd_velocity_smoother src/velocity_smoother.cpp)
+#target_link_libraries(yd_velocity_smoother
+#  yd_obstacle_avoid
+#  ${CORE_LIBRARY} 
+#  ${catkin_LIBRARIES}
+#)
+
+#add_executable(yd_velocity_smoother src/velocity_smoother.cpp)
+#target_link_libraries(yd_velocity_smoother
+#  yd_obstacle_avoid
+#  ${CORE_LIBRARY} 
+#  ${catkin_LIBRARIES}
+#)
 
 add_executable(intelligent_plan_node src/intelligent_plan_node.cpp)
 target_link_libraries(intelligent_plan_node
