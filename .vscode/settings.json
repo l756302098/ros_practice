@@ -55,5 +55,6 @@
         "valarray": "cpp",
         "core": "cpp",
         "mutex": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

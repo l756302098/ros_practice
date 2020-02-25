@@ -2,7 +2,7 @@ GlobalPlanner:
 
   allow_unknown: false
 
-  default_tolerance: 0.2
+  default_tolerance: 0.3
 
   visualize_potential: false
 

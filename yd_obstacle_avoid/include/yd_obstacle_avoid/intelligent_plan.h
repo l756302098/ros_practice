@@ -46,8 +46,8 @@ private:
     ros::Publisher control_model_pub, obstacle_pub, hearbeat_pub;
     ros::Subscriber robot_pose_sub, map_sub, task_sub;
     obstacle_detection od;
-    velocity_smoother vs;
     pc2ls ps;
+    velocity_smoother vs;
     float obs_dis;
     void control_mode(int model);
     void connect_server();

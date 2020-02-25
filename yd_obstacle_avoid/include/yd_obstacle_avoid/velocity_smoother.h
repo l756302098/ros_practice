@@ -23,8 +23,6 @@ class velocity_smoother
 private:
     boost::mutex mutex;
     ros::NodeHandle nh;
-    ros::Publisher cmd_pub;
-    ros::Subscriber vel_sub, odom_sub;
     //vel
     double v_max_vel, v_min_vel, v_max_acc, v_min_acc, v_jeck;
     double v_last_pos, v_last_vel, v_last_acc, v_pos, v_vel, v_acc, v_t_pos, v_t_vel, v_t_acc;
@@ -33,7 +31,9 @@ private:
     c2_algorithm vel_c2, ang_c2;
 
 public:
-    int frequency, is_use_odom;
+    ros::Publisher cmd_pub;
+    ros::Subscriber vel_sub, odom_sub;
+    int smoother_frequency_, is_use_odom;
     std::string smooth_vel_topic, raw_vel_topic, odom_topic;
     velocity_smoother();
     ~velocity_smoother();

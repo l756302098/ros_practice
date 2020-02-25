@@ -17,8 +17,8 @@ obstacle_layer:
  combination_method: 1
  min_obstacle_dist: 0.5
 
- observation_sources: camera_depth_sensor
- camera_depth_sensor: {sensor_frame: velodyne, data_type: LaserScan, topic: scan, marking: true, clearing: true,inf_is_valid: true}
+ observation_sources: lidar_sensor
+ lidar_sensor: {sensor_frame: base_link, data_type: LaserScan, topic: velodyne_scan, marking: true, clearing: true,inf_is_valid: true}
 
 
 inflation_layer:

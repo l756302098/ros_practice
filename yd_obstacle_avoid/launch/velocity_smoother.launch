@@ -9,10 +9,10 @@
   <param name="v_max_acc" value="2" />
   <param name="v_min_acc" value="-2" />
   <param name="v_jeck" value="2.0" />
-  <param name="a_max_vel" value="0.5" />
-  <param name="a_min_vel" value="-0.5" />
-  <param name="a_max_acc" value="5" />
-  <param name="a_min_acc" value="-5" />
-  <param name="a_jeck" value="5.0" />
+  <param name="a_max_vel" value="0.3" />
+  <param name="a_min_vel" value="-0.3" />
+  <param name="a_max_acc" value="3" />
+  <param name="a_min_acc" value="-3" />
+  <param name="a_jeck" value="3.0" />
   </node>
 </launch>

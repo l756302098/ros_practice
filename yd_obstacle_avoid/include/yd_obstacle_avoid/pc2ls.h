@@ -21,8 +21,8 @@ private:
     /* data */
     boost::mutex mutex;
     ros::NodeHandle nh;
-    ros::Publisher pub_;
-    ros::Subscriber sub;
+    ros::Publisher pub_, scan_pub;
+    ros::Subscriber sub, scan_sub;
 
     std::string target_frame_, raw_frame_,
         cloud_topic_, scan_topic_, transfrom_frame_;
@@ -39,6 +39,7 @@ public:
     pc2ls(/* args */);
     ~pc2ls();
     void cloudCb(const sensor_msgs::PointCloud2ConstPtr &cloud_msg);
+    void scanCallback(const sensor_msgs::LaserScanConstPtr &scan_msg);
     void deal_queue();
 };
 

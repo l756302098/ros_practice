@@ -24,6 +24,8 @@
 #include <yd_obstacle_avoid/intelligent_plan.h>
 #include <yd_obstacle_avoid/obstacle_detection.h>
 
+#include <yidamsg/ControlMode.h>
+
 using namespace std;
 using namespace Eigen;
 
@@ -31,14 +33,17 @@ typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
 intelligent_plan::intelligent_plan(/* args */)
 {
-    //connect_server();
+    connect_server();
 
-    string localmap_topic, odom_topic, task_topic;
+    string localmap_topic, odom_topic, task_topic, raw_vel_topic, smooth_vel_topic;
     nh.param<string>("/intelligent_plan_node/localmap_topic", localmap_topic, "/move_base/global_costmap/costmap");
     nh.param<string>("/intelligent_plan_node/odom_topic", odom_topic, "/odom_localization");
     nh.param<string>("/intelligent_plan_node/task_topic", task_topic, "/task_status");
+    nh.param<std::string>("/intelligent_plan_node/raw_cmd_vel_topic", raw_vel_topic, "");
+    nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
+    nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", odom_topic, "");
 
-    nh.param<int>("/intelligent_plan_node/smoother_frequency", smoother_frequency_, 10);
+   
     nh.param<int>("/intelligent_plan_node/pc2laser_frequency", pc2laser_frequency_, 5);
     cout << "localmap_topic:" << localmap_topic;
     cout << " odom_topic:" << odom_topic;
@@ -51,14 +56,13 @@ intelligent_plan::intelligent_plan(/* args */)
     task_sub = nh.subscribe(task_topic, 1, &obstacle_detection::task_status, &od);
     ROS_INFO("other init");
     //other
-    control_model_pub = nh.advertise<std_msgs::Int32>("/yida/robot/control_mode", 1, true);
+    control_model_pub = nh.advertise<yidamsg::ControlMode>("/yida/robot/control_mode", 1, true);
     obstacle_pub = nh.advertise<std_msgs::Int32>("/yida/obstacle_avoid/result", 1, true);
     hearbeat_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/yida/hearbeat", 1, true);
     
     ROS_INFO("smoother_thread_ init");
-    smoother_thread_ = new boost::thread(boost::bind(&intelligent_plan::smoother_thread, this));
-    ROS_INFO("pc2laser_thread_ init");
-    pc2laser_thread_ = new boost::thread(boost::bind(&intelligent_plan::pc2laser_thread, this));
+    //ROS_INFO("pc2laser_thread_ init");
+    //pc2laser_thread_ = new boost::thread(boost::bind(&intelligent_plan::pc2laser_thread, this));
 }
 
 intelligent_plan::~intelligent_plan()
@@ -97,8 +101,14 @@ void intelligent_plan::control_mode(int model)
 {
     // 0 is task model
     // 4 is obstacle model
+    /*
     std_msgs::Int32 msg;
     msg.data = model;
+    control_model_pub.publish(msg);
+    */
+    yidamsg::ControlMode msg;
+    msg.robot_id = 1;
+    msg.mode = model;
     control_model_pub.publish(msg);
 }
 
@@ -118,13 +128,11 @@ void intelligent_plan::update()
     {
         //change control model
         ROS_INFO("change control model:0");
-        std_msgs::Int32 msg;
-        msg.data = 0;
-        control_model_pub.publish(msg);
+        control_mode(0);
         //notify task manager
-        std_msgs::Int32 msg2;
-        msg2.data = intelligent_plan::move_base_result;
-        obstacle_pub.publish(msg2);
+        std_msgs::Int32 msg;
+        msg.data = intelligent_plan::move_base_result;
+        obstacle_pub.publish(msg);
         intelligent_plan::move_base_result = 0;
         //reset
         intelligent_plan::plan_stage = PlanStage::NONE;

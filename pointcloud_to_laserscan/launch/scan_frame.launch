@@ -5,7 +5,7 @@
 
     <param name="raw_topic" value="/scan"/>
     <param name="target_topic" value="/fscan"/>
-    <param name="target_frame" value="laser_link"/>
+    <param name="target_frame" value="base"/>
 
   </node>
 </launch>

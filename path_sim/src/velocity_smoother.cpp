@@ -145,7 +145,7 @@ void c3_class::update()
     {
         a_vel = 0;
     }
-    motor_control.control_model = 4;
+    motor_control.control_mode = 4;
     motor_control.speed.linear.x = v_vel;
     motor_control.speed.angular.z = a_vel;
     cmd_pub.publish(motor_control);

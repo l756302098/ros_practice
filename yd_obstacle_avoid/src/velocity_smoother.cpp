@@ -31,23 +31,17 @@ velocity_smoother::velocity_smoother()
     nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
     nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", odom_topic, "");
 
+    nh.param<int>("/intelligent_plan_node/smoother_frequency", smoother_frequency_, 10);
+
     cout << "smooth_vel_topic:" << smooth_vel_topic << endl;
     cout << "raw_vel_topic:" << raw_vel_topic << endl;
     cout << "odom_topic:" << odom_topic << endl;
-    cout << "frequency:" << frequency << endl;
+    cout << "smoother_frequency_:" << smoother_frequency_ << endl;
     cout << "v_max_vel:" << v_max_vel << endl;
     cout << "v_min_vel:" << v_min_vel << endl;
     cout << "v_max_acc:" << v_max_acc << endl;
     cout << "v_min_acc:" << v_min_acc << endl;
     cout << "v_jeck:" << v_jeck << endl;
-
-    cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
-    vel_sub = nh.subscribe(raw_vel_topic, 1, &velocity_smoother::velocity_cb, this);
-    if (!odom_topic.empty())
-    {
-        ROS_INFO("node add subscribe odom_topic");
-        odom_sub = nh.subscribe(odom_topic, 1, &velocity_smoother::odom_cb, this);
-    }
 
     v_last_pos = 0;
     v_last_vel = 0;
@@ -56,8 +50,29 @@ velocity_smoother::velocity_smoother()
     a_last_acc = 0;
     a_last_pos = 0;
     a_last_vel = 0;
-    vel_c2.init(v_min_vel, v_max_vel, v_min_acc, v_max_acc, v_jeck, frequency);
-    ang_c2.init(a_min_vel, a_max_vel, a_min_acc, a_max_acc, a_jeck, frequency);
+    vel_c2.init(v_min_vel, v_max_vel, v_min_acc, v_max_acc, v_jeck, smoother_frequency_);
+    ang_c2.init(a_min_vel, a_max_vel, a_min_acc, a_max_acc, a_jeck, smoother_frequency_);
+
+    cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
+    vel_sub = nh.subscribe(raw_vel_topic, 1, &velocity_smoother::velocity_cb, this);
+
+    ros::Rate rate(smoother_frequency_);
+
+    while (ros::ok())
+    {
+        update();
+        ros::spinOnce();
+        rate.sleep();
+    }
+
+    //ros::spin();
+    /*
+    if (!odom_topic.empty())
+    {
+        ROS_INFO("node add subscribe odom_topic");
+        odom_sub = nh.subscribe(odom_topic, 1, &velocity_smoother::odom_cb, this);
+    }
+    */
 }
 
 velocity_smoother ::~velocity_smoother()
@@ -140,13 +155,13 @@ void velocity_smoother::update()
     {
         a_vel = 0;
     }
-    motor_control.control_model = 4;
+    motor_control.control_mode = 4;
     motor_control.speed.linear.x = v_vel;
     motor_control.speed.angular.z = a_vel;
     cmd_pub.publish(motor_control);
     ROS_DEBUG_STREAM("deal smooth x:" << v_vel << " z:" << a_vel << endl);
 }
-/*
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "intelligent_plan_node");
@@ -154,7 +169,7 @@ int main(int argc, char **argv)
     velocity_smoother vs;
 
     //set frequency
-    ros::Rate rate(vs.frequency);
+    ros::Rate rate(100);
 
     while (ros::ok())
     {
@@ -165,4 +180,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
-*/
+

@@ -29,8 +29,13 @@ pc2ls::pc2ls(/* args */)
     std::cout << "cloud_topic:" << cloud_topic_ << std::endl;
     std::cout << "scan_topic:" << scan_topic_ << std::endl;
 
-    sub = nh.subscribe(cloud_topic_, 1, &pc2ls::cloudCb,this);
-    pub_ = nh.advertise<sensor_msgs::LaserScan>(scan_topic_, 10);
+    //sub = nh.subscribe(cloud_topic_, 1, &pc2ls::cloudCb,this);
+    //pub_ = nh.advertise<sensor_msgs::LaserScan>(scan_topic_, 10);
+
+    scan_sub = nh.subscribe("scan", 1, &pc2ls::scanCallback,this);
+    scan_pub = nh.advertise<sensor_msgs::LaserScan>(scan_topic_, 1);
+
+    //ros::spin();
 }
 
 pc2ls::~pc2ls()
@@ -38,10 +43,33 @@ pc2ls::~pc2ls()
 }
 
 void pc2ls::cloudCb(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
+    ROS_INFO("cloud Callback");
     //add list
     mutex.lock();
     pq.push(cloud_msg);
     mutex.unlock();
+}
+
+void pc2ls::scanCallback(const sensor_msgs::LaserScanConstPtr &scan_msg)
+{
+    sensor_msgs::LaserScan output;
+    output.header = scan_msg->header;
+    if (!target_frame_.empty())
+    {
+        output.header.frame_id = target_frame_;
+    }
+
+    output.angle_min = scan_msg->angle_min;
+    output.angle_max = scan_msg->angle_max;
+    output.angle_increment = scan_msg->angle_increment;
+    output.time_increment = scan_msg->time_increment;
+    output.scan_time = scan_msg->scan_time;
+    output.range_min = scan_msg->range_min;
+    output.range_max = scan_msg->range_max;
+    output.ranges = scan_msg->ranges;
+    //std::cout << "publish new scan" << std::endl;
+    //publish
+    scan_pub.publish(output);
 }
 
 void pc2ls::deal_queue(){
@@ -57,6 +85,7 @@ void pc2ls::deal_queue(){
 
     mutex.unlock();
     //deal data
+    ROS_INFO("deal pointcloud ...");
     sensor_msgs::LaserScan output;
     output.header = cloud_msg->header;
     if (!target_frame_.empty())
