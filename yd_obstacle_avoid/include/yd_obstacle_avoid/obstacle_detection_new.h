@@ -18,14 +18,14 @@
 #include <yidamsg/task_status.h>
 #include "std_msgs/Float32.h"
 
-#ifndef OBSTACLE_DETECTION_VALUES_H_
-#define OBSTACLE_DETECTION_VALUES_H_
+#ifndef OBSTACLE_DETECTION_NEW_VALUES_H_
+#define OBSTACLE_DETECTION_NEW_VALUES_H_
 
 using namespace std;
 using namespace Eigen;
 typedef Matrix<float, 4, 1> Vector4f;
 
-class obstacle_detection
+class obstacle_detection_new
 {
 private:
     /* param */

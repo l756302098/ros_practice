@@ -1,8 +1,0 @@
-<launch>
-  <node pkg="path_sim" type="smooth_vel" name="smooth_vel" output="screen" >
-  <param name="frequency" value="100" />
-  <param name="max_velocity" value="0.3" />
-  <param name="max_velc_acc" value="0.1" />
-  <param name="max_velc_jeck" value="1.0" />
-  </node>
-</launch>

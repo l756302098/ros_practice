@@ -9,7 +9,7 @@
 
     <param name="robot_width" value="0.5" />
     <param name="detection_length" value="2.0" />
-    <param name="road_min" value="5.0" />
+    <param name="road_min" value="3.0" />
     <!-- smoother -->
     <param name="raw_cmd_vel_topic" value="/cmd_vel" />
     <param name="smooth_cmd_vel_topic" value="/yida/robot/motor_control" />

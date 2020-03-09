@@ -10,17 +10,11 @@
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-
-#include <tf2/utils.h>
-
 class PoseDrawer
 {
 public:
     PoseDrawer();
     void pose_callback(const nav_msgs::OdometryConstPtr &pose_msg);
-    void transfrom(geometry_msgs::PoseStamped pose, geometry_msgs::TransformStamped transform);
 
 private:
     ros::Publisher center_pub;
@@ -51,48 +45,23 @@ void PoseDrawer::pose_callback(const nav_msgs::OdometryConstPtr &pose_msg)
     lidar_pose.pose.orientation.z = pose_msg->pose.pose.orientation.z;
     lidar_pose.pose.orientation.w = pose_msg->pose.pose.orientation.w;
 
+    geometry_msgs::PoseStamped center_pose;
     geometry_msgs::TransformStamped transform;
     try
     {
         transform = buffer_.lookupTransform("lidar_pose","center_pose",
                                             ros::Time(0));
-        transfrom(lidar_pose, transform);
+        //buffer_.transform(lidar_pose, center_pose, "center_pose");
+        tf2::doTransform(lidar_pose, center_pose, transform);
     }
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
-}
-
-void PoseDrawer::transfrom(geometry_msgs::PoseStamped pose, geometry_msgs::TransformStamped transform)
-{
-    //1.p1 world position
-    double p1x = pose.pose.position.x;
-    double p1y = pose.pose.position.y;
-    Eigen::Vector3d t1 = Eigen::Vector3d(p1x, p1y, 0);
-    Eigen::Quaterniond q1(pose.pose.orientation.w, pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z);
-    
-    //2. t12 value
-    double t12x = transform.transform.translation.x;
-    double t12y = transform.transform.translation.y;
-    Eigen::Vector3d t12 = Eigen::Vector3d(t12x, t12y, 0);
-    Eigen::Quaterniond q12(transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z);
-
-    //calc p2
-    Eigen::Quaterniond q2 = q1 * q12;
-    Eigen::Vector3d t2 = t1 + q1.toRotationMatrix() * t12;
-
-    geometry_msgs::PoseStamped center_pose;
-    center_pose.pose.position.x = t2(0);
-    center_pose.pose.position.y = t2(1);
-    center_pose.pose.position.z = pose.pose.position.z;
-
-    center_pose.pose.orientation.x = q2.x();
-    center_pose.pose.orientation.y = q2.y();
-    center_pose.pose.orientation.z = q2.z();
-    center_pose.pose.orientation.w = q2.w();
-
-    std::cout << "center_pose:" << center_pose << std::endl;
+    center_pose.header.frame_id = "lidar_pose";
+    center_pose.header.stamp = current_time;
+    std::cout << "pose:" << center_pose << std::endl;
+    center_pub.publish(center_pose);
 }
 
 int main(int argc, char **argv)

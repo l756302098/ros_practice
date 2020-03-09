@@ -2,7 +2,7 @@
 1.获取机器人的位置姿态
 2.获取局部地图
 3.在局部地图中找出道路
-4.在道路上检测是否有遮挡机器人的障碍物(特定路段)
+4.在道路上检测是否有遮挡机器人的障碍物
 5.提供服务，用于查询避过障碍物可到达的坐标点
 */
 #include <iostream>
@@ -27,14 +27,14 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <yidamsg/task_status.h>
-#include <yd_obstacle_avoid/obstacle_detection.h>
+#include <yd_obstacle_avoid/obstacle_detection_new.h>
 
 using namespace std;
 using namespace Eigen;
 
 typedef Matrix<float, 4, 1> Vector4f;
 
-obstacle_detection::obstacle_detection(/* args */)
+obstacle_detection_new::obstacle_detection_new(/* args */)
 {
     nh.param<float>("/intelligent_plan_node/robot_width", robot_width, 0.6);
     nh.param<float>("/intelligent_plan_node/detection_length", detection_length, 2.0);
@@ -43,17 +43,18 @@ obstacle_detection::obstacle_detection(/* args */)
     cout << "robot_width:" << robot_width << endl;
     cout << "detection_length:" << detection_length << endl;
     cout << "road_min:" << road_min << endl;
+    edge = 0.1;
 }
 
-obstacle_detection::~obstacle_detection()
+obstacle_detection_new::~obstacle_detection_new()
 {
 }
 
-int obstacle_detection::get_grid_value(unsigned int &g_x, unsigned int &g_y)
+int obstacle_detection_new::get_grid_value(unsigned int &g_x, unsigned int &g_y)
 {
 }
 
-int obstacle_detection::abs(unsigned int a, unsigned int b)
+int obstacle_detection_new::abs(unsigned int a, unsigned int b)
 {
     if (a >= b)
     {
@@ -65,7 +66,7 @@ int obstacle_detection::abs(unsigned int a, unsigned int b)
     }
 }
 
-bool obstacle_detection::detection(float &obs_dis)
+bool obstacle_detection_new::detection(float &obs_dis)
 {
     //判断位置
     if (!is_add_map)
@@ -80,20 +81,13 @@ bool obstacle_detection::detection(float &obs_dis)
         return false;
     }
     //判断是否符合条件
-    //1.道路总长大于５(road_min)m
-    //2.道路距离两头的距离大于 length - 0.5m
+    //1.去除原地旋转的条件 离起点/终点>0.1m
     if (alldis == 0 && dis == 0)
     {
         ROS_INFO("waitting for task status");
         return false;
     }
-    if (alldis < road_min)
-    {
-        ROS_INFO("road is too short , road min value is:%.2f", road_min);
-        return false;
-    }
     movedis = alldis - dis;
-    edge = detection_length - 0.5;
     if (movedis < edge)
     {
         ROS_INFO("Too close to starting point　alldis:%.2f dis:%.2f edge", alldis, dis, edge);
@@ -110,6 +104,10 @@ bool obstacle_detection::detection(float &obs_dis)
         ROS_ERROR("0 world to map error %i/%i", center_x, center_y);
         return false;
     }
+    //从当前位置向前延伸一定距离(radiu),判断是否有障碍物
+    //先确定到终点的距离和检测距离的大小
+    float final_length = 0;
+    final_length = dis > detection_length ? detection_length : dis;
 
     bool is_obs = false;
     //先左右扩展,在前后扩展，然后对应到像素
@@ -128,7 +126,7 @@ bool obstacle_detection::detection(float &obs_dis)
     temp_pos[2] = robot_pose.pose.position.z - r[2] * robot_width / 2;
 
     int cell_width = robot_width / resolution_;
-    int cell_height = detection_length / resolution_;
+    int cell_height = final_length / resolution_;
     unsigned int cell_center_x, cell_center_y;
     for (int i = 0; i < cell_width; i++)
     {
@@ -183,7 +181,7 @@ bool obstacle_detection::detection(float &obs_dis)
     }
 }
 
-bool obstacle_detection::calc_new_goal(float distance, geometry_msgs::PoseStamped &goal)
+bool obstacle_detection_new::calc_new_goal(float distance, geometry_msgs::PoseStamped &goal)
 {
     ROS_DEBUG("start calc new goal ...");
     //判断位置
@@ -193,13 +191,13 @@ bool obstacle_detection::calc_new_goal(float distance, geometry_msgs::PoseStampe
         return false;
     }
     //在检测范围之外寻找一个新的目标点/pos
+    //前提:总长大于1m且剩余大于1m
     //1.越过障碍物
     //2.在机器人的正前方
     //3.不能超过有效距离，在终点之后,在地图的半径之内
-    edge = detection_length - 0.5;
-    if (edge > dis)
+    if (dis < 1.0 || alldis < 1.0)
     {
-        ROS_INFO("Can't calculate: too close to the end");
+        ROS_INFO("Can't calculate: too close to the end alldis:%.2f dis:%.2f edge", alldis, dis, edge);
         return false;
     }
     float map_radiu = size_x_ * resolution_ / 2.0;
@@ -281,7 +279,7 @@ bool obstacle_detection::calc_new_goal(float distance, geometry_msgs::PoseStampe
     }
 }
 
-void obstacle_detection::set_map(const nav_msgs::OccupancyGrid::Ptr map)
+void obstacle_detection_new::set_map(const nav_msgs::OccupancyGrid::Ptr map)
 {
     //cout << "set_map" << endl;
     resolution_ = map->info.resolution;
@@ -293,7 +291,7 @@ void obstacle_detection::set_map(const nav_msgs::OccupancyGrid::Ptr map)
     is_add_map = true;
 }
 
-bool obstacle_detection::worldToMap(double wx, double wy, unsigned int &mx, unsigned int &my) const
+bool obstacle_detection_new::worldToMap(double wx, double wy, unsigned int &mx, unsigned int &my) const
 {
     if (wx < origin_x_ || wy < origin_y_)
     {
@@ -311,7 +309,7 @@ bool obstacle_detection::worldToMap(double wx, double wy, unsigned int &mx, unsi
     return false;
 }
 
-void obstacle_detection::pose_callback(const nav_msgs::OdometryConstPtr &pose_msg)
+void obstacle_detection_new::pose_callback(const nav_msgs::OdometryConstPtr &pose_msg)
 {
     Quaternionf quanternion = Quaternionf(pose_msg->pose.pose.orientation.w, pose_msg->pose.pose.orientation.x, pose_msg->pose.pose.orientation.y, pose_msg->pose.pose.orientation.z);
     robot_qua << pose_msg->pose.pose.position.x, pose_msg->pose.pose.position.y, pose_msg->pose.pose.position.z, radian_to_angle(quanternion.toRotationMatrix().eulerAngles(0, 1, 2)[2]);
@@ -327,22 +325,22 @@ void obstacle_detection::pose_callback(const nav_msgs::OdometryConstPtr &pose_ms
     is_had_pos = true;
 }
 
-double obstacle_detection::radian_to_angle(double radian)
+double obstacle_detection_new::radian_to_angle(double radian)
 {
     return 180 * radian / M_PI;
 }
 
-void obstacle_detection::task_status(const yidamsg::task_status::Ptr msg)
+void obstacle_detection_new::task_status(const yidamsg::task_status::Ptr msg)
 {
     ROS_DEBUG("get task status");
     alldis = msg->alldis;
     dis = msg->dis;
 }
 
-void obstacle_detection::new_goal(const std_msgs::Float32::ConstPtr &msg)
+void obstacle_detection_new::new_goal(const std_msgs::Float32::ConstPtr &msg)
 {
     float distance = msg->data;
-    ROS_INFO_STREAM("obstacle_detection calc new goal,distance " << distance);
+    ROS_INFO_STREAM("obstacle_detection_new calc new goal,distance " << distance);
     geometry_msgs::PoseStamped new_goal;
     if (calc_new_goal(distance, new_goal))
     {

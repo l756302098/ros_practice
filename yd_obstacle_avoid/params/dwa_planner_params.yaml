@@ -16,21 +16,20 @@ DWAPlannerROS:
   min_vel_y: 0.0
 
  
-  max_vel_theta: 0.3
-  min_vel_theta: -0.3
-  min_in_place_vel_theta: 0.5
+  max_vel_theta: 0.2
+  min_vel_theta: -0.2
+  min_in_place_vel_theta: 0.05
 
 # Goal Tolerance Parameters
 
-  yaw_goal_tolerance: 0.3  # 0.1 rad = 5.7 degree
+  yaw_goal_tolerance: 0.2  # 0.1 rad = 5.7 degree
   xy_goal_tolerance: 0.5
   latch_xy_goal_tolerance: true
-
  
 
 # Forward Simulation Parameters
 
-  sim_time: 1.7    # 1.7
+  sim_time: 1.5    # 1.7
   sim_granulariity: 0.025
   angular_sim_granularity: 0.02
   

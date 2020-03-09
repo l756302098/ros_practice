@@ -33,18 +33,16 @@ typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
 intelligent_plan::intelligent_plan(/* args */)
 {
-    connect_server();
+    //connect_server();
 
-    string localmap_topic, odom_topic, task_topic, raw_vel_topic, smooth_vel_topic;
+    string localmap_topic, odom_topic, task_topic, raw_vel_topic, smooth_vel_topic, robot_odom_topic;
     nh.param<string>("/intelligent_plan_node/localmap_topic", localmap_topic, "/move_base/global_costmap/costmap");
     nh.param<string>("/intelligent_plan_node/odom_topic", odom_topic, "/odom_localization");
     nh.param<string>("/intelligent_plan_node/task_topic", task_topic, "/task_status");
     nh.param<std::string>("/intelligent_plan_node/raw_cmd_vel_topic", raw_vel_topic, "");
     nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
-    nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", odom_topic, "");
-
-   
-    nh.param<int>("/intelligent_plan_node/pc2laser_frequency", pc2laser_frequency_, 5);
+    nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", robot_odom_topic, "");
+    //nh.param<int>("/intelligent_plan_node/pc2laser_frequency", pc2laser_frequency_, 5);
     cout << "localmap_topic:" << localmap_topic;
     cout << " odom_topic:" << odom_topic;
     cout << " task_topic:" << task_topic << endl;
@@ -54,6 +52,7 @@ intelligent_plan::intelligent_plan(/* args */)
     robot_pose_sub = nh.subscribe(odom_topic, 1, &obstacle_detection::pose_callback, &od);
     map_sub = nh.subscribe(localmap_topic, 1, &obstacle_detection::set_map, &od);
     task_sub = nh.subscribe(task_topic, 1, &obstacle_detection::task_status, &od);
+    new_goal_sub = nh.subscribe("/yida/obstacle_avoid/new_goal", 1, &obstacle_detection::new_goal, &od);
     ROS_INFO("other init");
     //other
     control_model_pub = nh.advertise<yidamsg::ControlMode>("/yida/robot/control_mode", 1, true);
@@ -61,8 +60,9 @@ intelligent_plan::intelligent_plan(/* args */)
     hearbeat_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/yida/hearbeat", 1, true);
     
     ROS_INFO("smoother_thread_ init");
-    //ROS_INFO("pc2laser_thread_ init");
-    //pc2laser_thread_ = new boost::thread(boost::bind(&intelligent_plan::pc2laser_thread, this));
+    smoother_thread_ = new boost::thread(boost::bind(&intelligent_plan::smoother_thread, this));
+    ROS_INFO("pc2laser_thread_ init");
+    pc2laser_thread_ = new boost::thread(boost::bind(&intelligent_plan::pc2laser_thread, this));
 }
 
 intelligent_plan::~intelligent_plan()
@@ -71,6 +71,8 @@ intelligent_plan::~intelligent_plan()
 
 void intelligent_plan::smoother_thread()
 {
+    vs = new velocity_smoother();
+    /*
     if (smoother_frequency_ <= 0)
         return;
     //calc usleep(1000);
@@ -81,10 +83,13 @@ void intelligent_plan::smoother_thread()
         vs.update();
         usleep(sleep_time);
     }
+    */
 }
 
 void intelligent_plan::pc2laser_thread()
 {
+    ps = new pc2ls();
+    /*
     if (pc2laser_frequency_ <= 0)
         return;
     //calc usleep(1000);
@@ -95,6 +100,7 @@ void intelligent_plan::pc2laser_thread()
         ps.deal_queue();
         usleep(sleep_time);
     }
+    */
 }
 
 void intelligent_plan::control_mode(int model)
@@ -169,7 +175,10 @@ void intelligent_plan::update()
             }
             else
             {
-                ROS_ERROR("calc new goal failed!");
+                ROS_ERROR("calc new goal failed! start waitting ...");
+                //等待一段时间,再次进行判断
+                sleep(5.0);
+                ROS_ERROR("notify task manager! end waitting");
                 pub_hearbeat(1, "calc new goal failed!");
                 intelligent_plan::plan_stage = PlanStage::NONE;
             }

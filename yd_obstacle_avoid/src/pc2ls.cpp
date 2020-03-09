@@ -35,7 +35,7 @@ pc2ls::pc2ls(/* args */)
     scan_sub = nh.subscribe("scan", 1, &pc2ls::scanCallback,this);
     scan_pub = nh.advertise<sensor_msgs::LaserScan>(scan_topic_, 1);
 
-    //ros::spin();
+    ros::spin();
 }
 
 pc2ls::~pc2ls()

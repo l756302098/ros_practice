@@ -1,9 +1,0 @@
-<launch>
-  <node pkg="path_sim" type="loop_planning_client" name="loop_planning_client" output="screen" respawn="false" >
-  <param name="a" value="9.0 0 0 0 0 0 1.0" />
-  <param name="b" value="-3.96 -1.69 0 0 0 0.709 0.70" />
-  <param name="c" value="24.4065437317 -3.13046789169 0 0 0 -0.724015621318 0.689783574817" />
-  <param name="d" value="1 0.22 3.66 1 0.22 3.66 0.00" />
-  </node>
-
-</launch>
