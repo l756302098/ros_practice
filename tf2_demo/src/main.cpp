@@ -35,6 +35,66 @@ PoseDrawer::PoseDrawer() : tf2_(buffer_), target_frame_("turtle1")
 {
     robot_pose_sub = n_.subscribe("/robot_pose", 1, &PoseDrawer::pose_callback,this);
     center_pub = n_.advertise<geometry_msgs::PoseStamped>("/yida/robot/center", 1, true);
+    //test
+    //speed angle
+    int speedH = 254;
+    int speedL = 112;
+    int speed = speedH * 256 + speedL;
+    //取补
+    if (speedH > 7){
+        speed = speed - 65536;
+    }
+
+    ROS_INFO("speed:%i speedH:%i speedL:%i", speed, speedH, speedL);
+    // int angleH = data[6];
+    // int angleL = data[7];
+    // int angle = angleH << 8 + angleL;
+
+    float lastTaskX = 0;
+    float lastTaskZ = 1;
+    float thisTaskX = 5;
+    float thisTaskZ = 1;
+    float thisPosX = 6;
+    float thisPosZ = 1.1;
+    //test
+    float p1x = thisPosX - lastTaskX;
+    float p1z = thisPosZ - lastTaskZ;
+    float p2x = thisTaskX - lastTaskX;
+    float p2z = thisTaskZ - lastTaskZ;
+    float PII = 3.14;
+    float DIS_NEAR = 0.4;
+    //calc angle
+    float theta = atan2(p1x, p1z) - atan2(p2x, p2z);
+    if (theta > PII)
+        theta -= 2 * PII;
+    if (theta < -PII)
+        theta += 2 * PII;
+
+    float angle = theta * 180.0 / PII;
+    ROS_INFO("angle: %f", angle);
+    //std::cout << "angle: " << angle << std::endl;
+    float distance = sqrt(p1z * p1z + p1x * p1x);
+    float offset = distance * sin(theta);
+    ROS_INFO("offset: %f", offset);
+    //std::cout << "offset: " << offset << std::endl;
+    if (abs(offset) > DIS_NEAR)
+    {
+        
+    }
+    //calc fore back
+    float alldis = sqrt(p2z * p2z + p2x * p2x);
+    float projection = distance * cos(theta);
+    ROS_INFO("projection: %f", projection);
+    //std::cout << "projection: " << projection << std::endl;
+    if (angle < 90 && projection > alldis + 0.3)
+    {
+       
+    }
+    if (angle > 90 && projection > 0.3)
+    {
+        
+    }
+
 }
 
 void PoseDrawer::pose_callback(const nav_msgs::OdometryConstPtr &pose_msg)

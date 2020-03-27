@@ -15,7 +15,6 @@ DWAPlannerROS:
   max_vel_y: 0.0  #diff drive robot,don't need set vel_y
   min_vel_y: 0.0
 
- 
   max_vel_theta: 0.2
   min_vel_theta: -0.2
   min_in_place_vel_theta: 0.05

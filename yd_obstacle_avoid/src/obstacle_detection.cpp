@@ -28,6 +28,8 @@
 #include <Eigen/Geometry>
 #include <yidamsg/task_status.h>
 #include <yd_obstacle_avoid/obstacle_detection.h>
+namespace yd_obstacle_avoid
+{
 
 using namespace std;
 using namespace Eigen;
@@ -352,4 +354,5 @@ void obstacle_detection::new_goal(const std_msgs::Float32::ConstPtr &msg)
     {
         ROS_INFO("calc new goal failed!");
     }
+}
 }

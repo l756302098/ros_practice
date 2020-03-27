@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <yidamsg/motor_control.h>
 
@@ -15,7 +16,8 @@
 
 #ifndef VELOCITY_SMOOTHER_VALUES_H_
 #define VELOCITY_SMOOTHER_VALUES_H_
-
+namespace yd_obstacle_avoid
+{
 using namespace std;
 
 class velocity_smoother
@@ -34,12 +36,15 @@ public:
     ros::Publisher cmd_pub;
     ros::Subscriber vel_sub, odom_sub;
     int smoother_frequency_, is_use_odom;
-    std::string smooth_vel_topic, raw_vel_topic, odom_topic;
+    std::string smooth_vel_topic, raw_vel_topic, feedback_topic;
     velocity_smoother();
     ~velocity_smoother();
     void velocity_cb(const geometry_msgs::Twist::ConstPtr &msg);
-    void odom_cb(const nav_msgs::Odometry::ConstPtr &msg);
+    void odom_cb(const geometry_msgs::TwistStamped::ConstPtr &msg);
     void update();
+    void reset();
 };
-
+} // namespace yd_obstacle_avoid
 #endif
+
+

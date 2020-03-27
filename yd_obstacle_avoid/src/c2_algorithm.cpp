@@ -5,6 +5,8 @@
 #include <ctime>
 #include <math.h>
 #include <yd_obstacle_avoid/c2_algorithm.h>
+namespace yd_obstacle_avoid
+{
 
 using namespace std;
 
@@ -113,4 +115,5 @@ void c2_algorithm::init(double min_vel_, double max_vel_, double min_acc_, doubl
     max_acc = max_acc_;
     jeck = jeck_;
     frequency = frequency_;
+}
 }

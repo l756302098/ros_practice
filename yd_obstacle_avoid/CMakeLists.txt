@@ -34,6 +34,7 @@ add_library(yd_obstacle_avoid
   src/c2_algorithm.cpp
   src/velocity_smoother.cpp
   src/obstacle_detection.cpp
+  src/obstacle_detection_new.cpp
   src/intelligent_plan.cpp
   src/pc2ls.cpp
 )
@@ -50,12 +51,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include
   ${PCL_INCLUDE_DIRS}
 )
 
-add_executable(yd_velocity_smoother src/velocity_smoother.cpp)
-target_link_libraries(yd_velocity_smoother
-  yd_obstacle_avoid
-  ${CORE_LIBRARY} 
-  ${catkin_LIBRARIES}
-)
+#add_executable(yd_velocity_smoother src/velocity_smoother.cpp)
+#target_link_libraries(yd_velocity_smoother
+#  yd_obstacle_avoid
+#  ${CORE_LIBRARY} 
+#  ${catkin_LIBRARIES}
+#)
 
 add_executable(intelligent_plan_node src/intelligent_plan_node.cpp)
 target_link_libraries(intelligent_plan_node

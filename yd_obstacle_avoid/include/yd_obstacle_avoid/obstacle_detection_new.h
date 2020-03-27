@@ -20,7 +20,7 @@
 
 #ifndef OBSTACLE_DETECTION_NEW_VALUES_H_
 #define OBSTACLE_DETECTION_NEW_VALUES_H_
-
+namespace yd_obstacle_avoid {
 using namespace std;
 using namespace Eigen;
 typedef Matrix<float, 4, 1> Vector4f;
@@ -32,7 +32,7 @@ private:
     float robot_width, detection_length, road_min;
     /* ros node */
     ros::NodeHandle nh;
-    ros::Publisher map_pub, right_pub, detection_pub;
+    ros::Publisher map_pub, right_pub, detection_pub,new_goal_pub;
     ros::Subscriber pose_sub, map_sub, task_sub;
     ros::ServiceServer goal_srv;
     /* map */
@@ -40,18 +40,20 @@ private:
     double origin_x_, origin_y_, resolution_;
     nav_msgs::OccupancyGridPtr grid;
     bool is_add_map, is_had_pos;
+    bool is_pub_road;
     /* robot data */
     unsigned int center_x, center_y;
     Vector4f robot_qua;
-    float alldis, dis, movedis, edge;
+    float alldis, dis, remdis, alldis_, dis_, remdis_, edge;
     /* data */
     geometry_msgs::PoseStamped robot_pose;
     unsigned int left_down_p_x, left_down_p_y, right_down_p_x, right_down_p_y,
         left_upper_p_x, right_upper_p_x;
+    int direct, direct_;
 
 public:
-    obstacle_detection(/* args */);
-    ~obstacle_detection();
+    obstacle_detection_new(/* args */);
+    ~obstacle_detection_new();
     bool detection(float &obs_dis);
     bool worldToMap(double wx, double wy, unsigned int &mx, unsigned int &my) const;
     double radian_to_angle(double radian);
@@ -63,5 +65,7 @@ public:
     void set_map(const nav_msgs::OccupancyGrid::Ptr map);
     void task_status(const yidamsg::task_status::Ptr msg);
     void new_goal(const std_msgs::Float32::ConstPtr &msg);
+    void reset();
 };
+}
 #endif

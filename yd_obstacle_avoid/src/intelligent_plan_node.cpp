@@ -1,5 +1,7 @@
 #include <yd_obstacle_avoid/intelligent_plan.h>
 
+using namespace yd_obstacle_avoid;
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "intelligent_plan_node");

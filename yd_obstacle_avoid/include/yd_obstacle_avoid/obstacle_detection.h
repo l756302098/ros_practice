@@ -20,7 +20,8 @@
 
 #ifndef OBSTACLE_DETECTION_VALUES_H_
 #define OBSTACLE_DETECTION_VALUES_H_
-
+namespace yd_obstacle_avoid
+{
 using namespace std;
 using namespace Eigen;
 typedef Matrix<float, 4, 1> Vector4f;
@@ -64,4 +65,5 @@ public:
     void task_status(const yidamsg::task_status::Ptr msg);
     void new_goal(const std_msgs::Float32::ConstPtr &msg);
 };
+}
 #endif

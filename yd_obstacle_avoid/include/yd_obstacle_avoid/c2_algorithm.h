@@ -8,6 +8,8 @@
 #ifndef C2_ALGORITHM_VALUES_H_
 #define C2_ALGORITHM_VALUES_H_
 
+namespace yd_obstacle_avoid {
+
 class c2_algorithm
 {
 private:
@@ -34,5 +36,5 @@ public:
     void init(double min_vel_, double max_vel_, double min_acc_, double max_acc_, double jeck_, int frequency_);
     void prepare();
 };
-
+} // namespace yd_obstacle_avoid
 #endif

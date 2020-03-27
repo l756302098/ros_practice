@@ -12,7 +12,8 @@
 #include <yd_obstacle_avoid/c2_algorithm.h>
 #include <yidamsg/motor_control.h>
 #include <yd_obstacle_avoid/velocity_smoother.h>
-
+namespace yd_obstacle_avoid
+{
 velocity_smoother::velocity_smoother()
 {
     nh.param<double>("/intelligent_plan_node/v_max_vel", v_max_vel, 0.3);
@@ -28,14 +29,14 @@ velocity_smoother::velocity_smoother()
     nh.param<double>("/intelligent_plan_node/a_jeck", a_jeck, 0.0);
 
     nh.param<std::string>("/intelligent_plan_node/raw_cmd_vel_topic", raw_vel_topic, "");
-    nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
-    nh.param<std::string>("/intelligent_plan_node/robot_odom_topic", odom_topic, "");
+    nh.param<std::string>("/intelligent_plan_node/smooth_cmd_vel_topic", smooth_vel_topic, ""); //feedback_topic
+    nh.param<std::string>("/intelligent_plan_node/robot_feedback_topic", feedback_topic, "");
 
     nh.param<int>("/intelligent_plan_node/smoother_frequency", smoother_frequency_, 10);
 
     cout << "smooth_vel_topic:" << smooth_vel_topic << endl;
     cout << "raw_vel_topic:" << raw_vel_topic << endl;
-    cout << "odom_topic:" << odom_topic << endl;
+    cout << "feedback_topic:" << feedback_topic << endl;
     cout << "smoother_frequency_:" << smoother_frequency_ << endl;
     cout << "v_max_vel:" << v_max_vel << endl;
     cout << "v_min_vel:" << v_min_vel << endl;
@@ -55,24 +56,20 @@ velocity_smoother::velocity_smoother()
 
     cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
     vel_sub = nh.subscribe(raw_vel_topic, 1, &velocity_smoother::velocity_cb, this);
-
-    ros::Rate rate(smoother_frequency_);
-
-    while (ros::ok())
+    if (!feedback_topic.empty())
     {
-        update();
-        ros::spinOnce();
-        rate.sleep();
+        ROS_INFO("node add subscribe feedback_topic");
+        odom_sub = nh.subscribe(feedback_topic, 1, &velocity_smoother::odom_cb, this);
     }
 
-    //ros::spin();
-    /*
-    if (!odom_topic.empty())
-    {
-        ROS_INFO("node add subscribe odom_topic");
-        odom_sub = nh.subscribe(odom_topic, 1, &velocity_smoother::odom_cb, this);
-    }
-    */
+    // ros::Rate rate(smoother_frequency_);
+
+    // while (ros::ok())
+    // {
+    //     update();
+    //     ros::spinOnce();
+    //     rate.sleep();
+    // }
 }
 
 velocity_smoother ::~velocity_smoother()
@@ -119,29 +116,32 @@ void velocity_smoother::velocity_cb(const geometry_msgs::Twist::ConstPtr &msg)
     }
 }
 
-void velocity_smoother::odom_cb(const nav_msgs::Odometry::ConstPtr &msg)
+void velocity_smoother::odom_cb(const geometry_msgs::TwistStamped::ConstPtr &msg)
 {
     mutex.lock();
-    v_vel = msg->twist.twist.linear.x;
-    a_vel = msg->twist.twist.angular.z;
+    v_last_vel = (msg->twist.linear.x) / 1000;
+    a_last_vel = (msg->twist.angular.z)/1000;
     mutex.unlock();
 }
 
 void velocity_smoother::update()
 {
-    ROS_DEBUG("velocity_smoother update");
     //calc twist
     mutex.lock();
 
     vel_c2.get_qk(v_last_acc, v_last_vel, v_acc, v_vel);
     v_last_pos = v_pos;
-    v_last_vel = v_vel;
+    //v_last_vel = v_vel;
     v_last_acc = v_acc;
 
     ang_c2.get_qk(a_last_acc, a_last_vel, a_acc, a_vel);
     a_last_pos = a_pos;
-    a_last_vel = a_vel;
+    //a_last_vel = a_vel;
     a_last_acc = a_acc;
+    if (feedback_topic.empty()){
+        v_last_vel = v_vel;
+        a_last_vel = a_vel;
+    }
     mutex.unlock();
 
     //cout << "last_pos:" << last_pos << " last_vel:" << last_vel << " last_acc:" << last_acc << endl;
@@ -161,7 +161,22 @@ void velocity_smoother::update()
     cmd_pub.publish(motor_control);
     ROS_DEBUG_STREAM("deal smooth x:" << v_vel << " z:" << a_vel << endl);
 }
+void velocity_smoother::reset()
+{
+    v_last_vel = 0;
+    v_last_acc = 0;
+    a_last_vel = 0;
+    a_last_acc = 0;
+    v_t_vel = 0;
+    v_t_acc = 0;
+    a_t_vel = 0;
+    a_t_acc = 0;
+}
+}
 
+
+
+/*
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "intelligent_plan_node");
@@ -180,4 +195,5 @@ int main(int argc, char **argv)
 
     return 0;
 }
+*/
 

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="wheel_verif" name="vel_verf" type="vel_verf" output="screen" respawn ="true">
+  
+  </node>
+
+</launch>

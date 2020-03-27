@@ -12,7 +12,8 @@
 #include <yd_obstacle_avoid/c2_algorithm.h>
 #include <yidamsg/motor_control.h>
 #include <yd_obstacle_avoid/velocity_smoother.h>
-
+namespace yd_obstacle_avoid
+{
 velocity_smoother::velocity_smoother()
 {
     nh.param<int>("/yd_velocity_smoother/frequency", frequency, 100);
@@ -29,12 +30,12 @@ velocity_smoother::velocity_smoother()
     nh.param<double>("/yd_velocity_smoother/a_jeck", a_jeck, 0.0);
 
     nh.param<std::string>("/yd_velocity_smoother/raw_cmd_vel_topic", raw_vel_topic, "");
-    nh.param<std::string>("/yd_velocity_smoother/smooth_cmd_vel_topic", smooth_vel_topic, ""); //odom_topic
-    nh.param<std::string>("/yd_velocity_smoother/odom_topic", odom_topic, "");
+    nh.param<std::string>("/yd_velocity_smoother/smooth_cmd_vel_topic", smooth_vel_topic, ""); //feedback_topic
+    nh.param<std::string>("/yd_velocity_smoother/feedback_topic", feedback_topic, "");
 
     cout << "smooth_vel_topic:" << smooth_vel_topic << endl;
     cout << "raw_vel_topic:" << raw_vel_topic << endl;
-    cout << "odom_topic:" << odom_topic << endl;
+    cout << "feedback_topic:" << feedback_topic << endl;
     cout << "frequency:" << frequency << endl;
     cout << "v_max_vel:" << v_max_vel << endl;
     cout << "v_min_vel:" << v_min_vel << endl;
@@ -44,11 +45,11 @@ velocity_smoother::velocity_smoother()
 
     cmd_pub = nh.advertise<yidamsg::motor_control>(smooth_vel_topic, 1, true);
     vel_sub = nh.subscribe(raw_vel_topic, 1, &velocity_smoother::velocity_cb, this);
-    nh.param<std::string>("/velocity_smoother/odom_topic", odom_topic, "");
-    if (!odom_topic.empty())
+    nh.param<std::string>("/velocity_smoother/feedback_topic", feedback_topic, "");
+    if (!feedback_topic.empty())
     {
-        ROS_INFO("node add subscribe odom_topic");
-        odom_sub = nh.subscribe(odom_topic, 1, &velocity_smoother::odom_cb, this);
+        ROS_INFO("node add subscribe feedback_topic");
+        odom_sub = nh.subscribe(feedback_topic, 1, &velocity_smoother::odom_cb, this);
     }
 
     v_last_pos = 0;
@@ -148,7 +149,7 @@ void velocity_smoother::update()
     cmd_pub.publish(motor_control);
     ROS_INFO_STREAM("deal smooth x:" << v_vel << " z:" << a_vel << endl);
 }
-
+/*
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "yd_velocity_smoother");
@@ -166,4 +167,6 @@ int main(int argc, char **argv)
     }
 
     return 0;
+}
+*/
 }

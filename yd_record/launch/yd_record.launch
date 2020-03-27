@@ -2,9 +2,9 @@
 <launch>
 	<group ns="record">
 		<param name="path_save" type="str" value="/home/li/Downloads/bag"	/>
-		<param name="topic" 	type="str" value="/velodyne_points /odom_localization /laser_buffer_size"/>
+		<param name="topic" 	type="str" value="/robot_pose /AuxLocator/laser_odom_to_init"/>
 		<param name="file_name" type="str" value="record"	/>
-        <param name="seconds" value="30"	/>
+        <param name="seconds" value="180"	/>
 		<node name="yd_record" pkg="yd_record" type="yd_record" output="screen" respawn="false"/>
 	</group>
 

@@ -3,7 +3,8 @@
 #include <string>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <yd_obstacle_avoid/pc2ls.h>
-
+namespace yd_obstacle_avoid
+{
 pc2ls::pc2ls(/* args */)
 {
     tf2_.reset(new tf2_ros::Buffer());
@@ -183,4 +184,5 @@ void pc2ls::deal_queue(){
     }
 
     pub_.publish(output);
+}
 }

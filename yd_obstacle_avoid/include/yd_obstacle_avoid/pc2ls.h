@@ -14,7 +14,8 @@
 
 #ifndef PC2LS_VALUES_H_
 #define PC2LS_VALUES_H_
-
+namespace yd_obstacle_avoid
+{
 class pc2ls
 {
 private:
@@ -42,5 +43,5 @@ public:
     void scanCallback(const sensor_msgs::LaserScanConstPtr &scan_msg);
     void deal_queue();
 };
-
+}
 #endif
