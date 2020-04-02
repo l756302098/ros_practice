@@ -13,7 +13,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
 #include "std_msgs/Bool.h"
 #include "yidamsg/ControlMode.h"
@@ -27,10 +27,12 @@
 #include <yd_obstacle_avoid/obstacle_detection_new.h>
 #include <yd_obstacle_avoid/velocity_smoother.h>
 #include <yd_obstacle_avoid/pc2ls.h>
+#include <tf/tf.h>
+#include "std_msgs/Float32.h"
 
 #ifndef INTELLIGENT_PLAN_VALUES_H_
 #define INTELLIGENT_PLAN_VALUES_H_
-    namespace yd_obstacle_avoid
+namespace yd_obstacle_avoid
 {
 
 using namespace std;
@@ -49,7 +51,7 @@ class intelligent_plan
 {
 private:
     /* param */
-    ros::Publisher control_model_pub, obstacle_pub, hearbeat_pub, pose_stop_pub;
+    ros::Publisher control_model_pub, result_pub, obstacle_pub, hearbeat_pub, pose_stop_pub;
     ros::Subscriber robot_pose_sub, map_sub, task_sub, new_goal_sub, test_sub, control_model_sub;
     obstacle_detection_new od;
     pc2ls *ps;
@@ -74,6 +76,9 @@ public:
     void new_planning(float dis_);
     void test(const std_msgs::Float32::ConstPtr &msg);
     void interrupt(const yidamsg::ControlMode::ConstPtr & msg);
+    void failed_recover();
+    void pub_result(int result);
+    void pub_distance(float distance);
     //thread
     void smoother_thread();
     void pc2laser_thread();
@@ -98,7 +103,7 @@ public:
         if (state == state.SUCCEEDED)
         {
             ROS_INFO("success avoid obs");
-            intelligent_plan::move_base_result = 1;
+            intelligent_plan::move_base_result += 1;
         }
         else if (state == state.PREEMPTED)
         {
@@ -107,7 +112,7 @@ public:
         else
         {
             ROS_INFO("failed avoid obs");
-            intelligent_plan::move_base_result = 2;
+            intelligent_plan::move_base_result += 2;
         }
     }
 };

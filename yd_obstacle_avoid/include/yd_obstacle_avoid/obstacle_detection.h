@@ -33,7 +33,7 @@ private:
     float robot_width, detection_length, road_min;
     /* ros node */
     ros::NodeHandle nh;
-    ros::Publisher map_pub, right_pub, detection_pub;
+    ros::Publisher map_pub, right_pub, detection_pub, new_goal_pub;
     ros::Subscriber pose_sub, map_sub, task_sub;
     ros::ServiceServer goal_srv;
     /* map */
@@ -41,14 +41,17 @@ private:
     double origin_x_, origin_y_, resolution_;
     nav_msgs::OccupancyGridPtr grid;
     bool is_add_map, is_had_pos;
+    bool is_pub_road;
     /* robot data */
     unsigned int center_x, center_y;
     Vector4f robot_qua;
-    float alldis, dis, movedis, edge;
+    float alldis, dis, remdis, road_width, alldis_, dis_, remdis_, road_width_, edge;
+    float start_x, start_y, end_x, end_y;
     /* data */
     geometry_msgs::PoseStamped robot_pose;
     unsigned int left_down_p_x, left_down_p_y, right_down_p_x, right_down_p_y,
         left_upper_p_x, right_upper_p_x;
+    int direct, direct_;
 
 public:
     obstacle_detection(/* args */);
@@ -64,6 +67,7 @@ public:
     void set_map(const nav_msgs::OccupancyGrid::Ptr map);
     void task_status(const yidamsg::task_status::Ptr msg);
     void new_goal(const std_msgs::Float32::ConstPtr &msg);
+    void reset();
 };
 }
 #endif

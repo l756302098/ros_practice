@@ -31,6 +31,7 @@ catkin_package(
 )
 
 add_library(yd_obstacle_avoid
+  src/Vector3.cpp
   src/c2_algorithm.cpp
   src/velocity_smoother.cpp
   src/obstacle_detection.cpp

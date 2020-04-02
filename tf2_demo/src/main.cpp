@@ -5,6 +5,7 @@
 #include "tf2_ros/message_filter.h"
 #include "message_filters/subscriber.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2/utils.h>
 
 #include <geometry_msgs/TransformStamped.h>
 #include <nav_msgs/Odometry.h>
@@ -12,8 +13,7 @@
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
-
-#include <tf2/utils.h>
+#include <signal.h>
 
 class PoseDrawer
 {
@@ -21,6 +21,7 @@ public:
     PoseDrawer();
     void pose_callback(const nav_msgs::OdometryConstPtr &pose_msg);
     void transfrom(geometry_msgs::PoseStamped pose, geometry_msgs::TransformStamped transform);
+    ros::NodeHandle n_;
 
 private:
     ros::Publisher center_pub;
@@ -28,7 +29,7 @@ private:
     std::string target_frame_;
     tf2_ros::Buffer buffer_;
     tf2_ros::TransformListener tf2_;
-    ros::NodeHandle n_;
+    
 };
 
 PoseDrawer::PoseDrawer() : tf2_(buffer_), target_frame_("turtle1")
@@ -155,10 +156,26 @@ void PoseDrawer::transfrom(geometry_msgs::PoseStamped pose, geometry_msgs::Trans
     std::cout << "center_pose:" << center_pose << std::endl;
 }
 
+// void MySigintHandler(int sig)
+// {
+//     //这里主要进行退出前的数据保存、内存清理、告知其他节点等工作
+//     ROS_INFO("shutting down!");
+//     ros::shutdown();
+// }
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pose_transfrom"); //Init ROS
-    PoseDrawer pd;                        //Construct class
+    if (argc>1){
+        std::cout << "argc" << argv[1] << std::endl;
+    }
+
+    PoseDrawer pd;
+    bool is_sim = false;
+    pd.n_.param<bool>("is_sim", is_sim, false);
+    std::cout << "is_sim" << is_sim << std::endl;
+    //signal(SIGINT, MySigintHandler);      //Construct class
     ros::spin();                          // Run until interupted
+    ROS_INFO("node exits");
     return 0;
 };

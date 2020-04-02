@@ -13,19 +13,19 @@
 	
 	
 	<!--  ****** TF *****  -->
-	<node pkg="tf" type="static_transform_publisher" name="lidar_to_base" args="0.0 0.0 1.5 0 0 0.0 /lidar_pose /base_link 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="lidar_to_base" args="0.0 0.0 1.5 0 0 0.0 /lidar_pose /base_link 10"/ respawn="true">
 	<!--
  	
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_base" args="0.0 0.0 0.0 0 0 0.0 /odom /base_link 10"/>
     <node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.0 0.0 0.0 0 0 0.0 /base_link /laser_link 10"/>
 	-->
 	<!--  ****** Maps *****  -->
-	<node name="map_server" pkg="map_server" type="map_server" args="$(find yd_obstacle_avoid)/maps/beijing.yaml" output="screen">
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find yd_obstacle_avoid)/maps/beijing.yaml" output="screen" respawn="true">
 		<param name="frame_id" value="/map"/>
 	</node>
 
     <!--  ************** Navigation ***************  -->
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+	<node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
 		<!-- costmap -->
   	  	<rosparam file="$(find yd_obstacle_avoid)/params/costmap_common_params.yaml" command="load" ns="global_costmap" />
   	 	<rosparam file="$(find yd_obstacle_avoid)/params/costmap_common_params.yaml" command="load" ns="local_costmap" />

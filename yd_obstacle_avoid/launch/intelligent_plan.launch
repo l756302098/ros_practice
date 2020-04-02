@@ -2,13 +2,14 @@
 <!--
   <include file="$(find yd_obstacle_avoid)/launch/navigation.launch" />
 -->
-  <node pkg="yd_obstacle_avoid" type="intelligent_plan_node" name="intelligent_plan_node" output="screen" respawn="false" >
+  <node pkg="yd_obstacle_avoid" type="intelligent_plan_node" name="intelligent_plan_node" output="screen" respawn="true" >
     <param name="localmap_topic" value="/move_base/global_costmap/costmap" />
     <param name="odom_topic" value="/robot_pose" />
     <param name="task_topic" value="/task_status" />
 
-    <param name="robot_width" value="0.4" />
+    <param name="robot_width" value="0.6" />
     <param name="detection_length" value="2.0" />
+    <param name="detection_width" value="0.2" />
     <param name="edge" value="0.8" />
     <param name="is_pub_road" value="true" />
     <!-- smoother -->

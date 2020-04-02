@@ -6,6 +6,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "vel_verf"); //Init ROS
     ros::NodeHandle nh;
 
+    bool is_sim = false;
+    nh.param<bool>("is_sim", is_sim, false);
+    std::cout << "is_sim" << is_sim << std::endl;
+
     ros::Publisher cmd_pub = nh.advertise<yidamsg::motor_control>("/yida/robot/motor_control", 1, true);
     ros::Rate loop_rate(10);
     ros::Duration duration = ros::Duration(10);

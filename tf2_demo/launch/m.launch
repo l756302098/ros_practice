@@ -1,0 +1,5 @@
+<launch>
+  <param name="is_sim" value="true" />
+  <node pkg="tf2_demo" type="tf2_demo" name="tf2_demo" output="screen" respawn="true">
+  </node>
+</launch>

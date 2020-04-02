@@ -1,3 +1,6 @@
+#ifndef OBSTACLE_DETECTION_NEW_VALUES_H_
+#define OBSTACLE_DETECTION_NEW_VALUES_H_
+
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -17,9 +20,14 @@
 #include <Eigen/Geometry>
 #include <yidamsg/task_status.h>
 #include "std_msgs/Float32.h"
+#include <yd_obstacle_avoid/Vector3.h>
+#include <geometry_msgs/Pose.h>
+#include <tf/tf.h>
 
-#ifndef OBSTACLE_DETECTION_NEW_VALUES_H_
-#define OBSTACLE_DETECTION_NEW_VALUES_H_
+#include "tf2_ros/transform_listener.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2/utils.h>
+
 namespace yd_obstacle_avoid {
 using namespace std;
 using namespace Eigen;
@@ -29,7 +37,7 @@ class obstacle_detection_new
 {
 private:
     /* param */
-    float robot_width, detection_length, road_min;
+    float robot_width, detection_length, detection_width;
     /* ros node */
     ros::NodeHandle nh;
     ros::Publisher map_pub, right_pub, detection_pub,new_goal_pub;
@@ -39,19 +47,22 @@ private:
     uint32_t size_x_, size_y_;
     double origin_x_, origin_y_, resolution_;
     nav_msgs::OccupancyGridPtr grid;
-    bool is_add_map, is_had_pos;
     bool is_pub_road;
     /* robot data */
     unsigned int center_x, center_y;
     Vector4f robot_qua;
-    float alldis, dis, remdis, alldis_, dis_, remdis_, edge;
+    float alldis, dis, remdis, road_width, alldis_, dis_, remdis_, edge;
     /* data */
-    geometry_msgs::PoseStamped robot_pose;
     unsigned int left_down_p_x, left_down_p_y, right_down_p_x, right_down_p_y,
         left_upper_p_x, right_upper_p_x;
     int direct, direct_;
+    tf2_ros::Buffer buffer_;
+    tf2_ros::TransformListener tf2_;
 
 public:
+    bool is_add_map, is_had_pos;
+    geometry_msgs::PoseStamped robot_pose;
+    float start_x, start_y, end_x, end_y;
     obstacle_detection_new(/* args */);
     ~obstacle_detection_new();
     bool detection(float &obs_dis);
@@ -59,13 +70,14 @@ public:
     double radian_to_angle(double radian);
     int abs(unsigned int a, unsigned int b);
     int get_grid_value(unsigned int &g_x, unsigned int &g_y);
-    bool calc_new_goal(float distance, geometry_msgs::PoseStamped &goal);
+    int calc_new_goal(float distance, geometry_msgs::Pose &goal);
     /* callback */
     void pose_callback(const nav_msgs::OdometryConstPtr &pose_msg);
     void set_map(const nav_msgs::OccupancyGrid::Ptr map);
     void task_status(const yidamsg::task_status::Ptr msg);
     void new_goal(const std_msgs::Float32::ConstPtr &msg);
     void reset();
+    geometry_msgs::Pose calc_pose(Vector3 start_pose, Vector3 end_pose);
 };
 }
 #endif
