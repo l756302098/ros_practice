@@ -22,10 +22,6 @@ add_executable(monitor src/monitor.cpp
 add_dependencies(monitor ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS} src/log4z.cpp)
 target_link_libraries(monitor ${catkin_LIBRARIES})
 
-add_executable(system src/system.cpp)
-add_dependencies(system ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
-target_link_libraries(system ${catkin_LIBRARIES})
-
 add_executable(hdl_daemon src/hdl_daemon.cpp)
 add_dependencies(hdl_daemon ${catkin_EXPORTED_TARGETS}  ${catkin_INCLUDE_DIRS})
 target_link_libraries(hdl_daemon

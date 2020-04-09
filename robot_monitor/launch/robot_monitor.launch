@@ -19,6 +19,6 @@
  <node pkg="robot_monitor" name="hdl_daemon" type="hdl_daemon"  output="screen" respawn ="true">
   <param name="topic" value="/hdl/heartbeat" />
   <param name="timeout_num" value="5" />
-  <param name="file_name" value="/home/li/restart.sh" />
+  <param name="file_name" value="$(find robot_monitor)/restart.sh" />
   </node> 
 </launch>

@@ -1,8 +1,0 @@
-<launch>
-  <node pkg="robot_odometer" name="wheel_speed" type="wheel_speed" output="screen" respawn ="false">
-  <param name="port" value="/dev/ttyUSB0" />
-  </node>
-
-   <node pkg="robot_odometer" name="car_wheel_speed" type="car_wheel_speed" output="screen" respawn ="false">
-  </node>
-</launch>

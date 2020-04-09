@@ -91,10 +91,8 @@ public:
   ~monitor_ros_node();
 
   void robotCallback(const nav_msgs::Odometry::ConstPtr &data);
-  void systemCallback(const std_msgs::String::ConstPtr &msg);
   void jumpCallback(const std_msgs::Bool::ConstPtr &msg);
   void bufferCallback(const std_msgs::Int16::ConstPtr &msg);
-  void processScan(const velodyne_msgs::VelodyneScan::ConstPtr &scanMsg);
   void update();
 };
 monitor_ros_node::monitor_ros_node()
@@ -220,47 +218,6 @@ void monitor_ros_node::robotCallback(const nav_msgs::Odometry::ConstPtr &data)
   last_time = start_time;
 }
 
-void monitor_ros_node::processScan(const velodyne_msgs::VelodyneScan::ConstPtr &scanMsg)
-{
-  //velodyne hz
-  current_scan = *scanMsg;
-  double offsetSecs = current_scan.header.stamp.toSec() - last_scan.header.stamp.toSec();
-  current_hz = 1 / (offsetSecs);
-  //std::cout << "veldyne sacn hz " << current_hz << std::endl;
-  //std::cout << "velodyne_threshold_hz " << velodyne_threshold_hz << std::endl;
-  if (current_hz < velodyne_threshold_hz && !laser_is_delay && !robot_is_stop)
-  {
-    //stop robot move
-    ostringstream oss;
-    oss.str("");
-    oss << "velodyne delay 大于 ";
-    oss << velodyne_threshold_hz;
-    oss << "阈值，停止移动";
-    syslog(LOG_INFO, oss.str().c_str());
-    std_msgs::Int32 robot_status;
-    robot_status.data = 0;
-    control_pub.publish(robot_status);
-    laser_is_delay = true;
-    robot_is_stop = true;
-  }
-  else if (current_hz >= velodyne_threshold_hz && laser_is_delay && robot_is_stop)
-  {
-    //start robot move
-    ostringstream oss;
-    oss.str("");
-    oss << "velodyne delay 小于 ";
-    oss << velodyne_threshold_hz;
-    oss << "阈值，恢复移动";
-    syslog(LOG_INFO, oss.str().c_str());
-    std_msgs::Int32 robot_status;
-    robot_status.data = 1;
-    control_pub.publish(robot_status);
-    laser_is_delay = false;
-    robot_is_stop = false;
-  }
-  last_scan = current_scan;
-}
-
 void monitor_ros_node::jumpCallback(const std_msgs::Bool::ConstPtr &msg)
 {
   if (msg->data)
@@ -277,7 +234,6 @@ void monitor_ros_node::jumpCallback(const std_msgs::Bool::ConstPtr &msg)
 
 void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
 {
-  //std::cout << "buffer size:" << msg->data << " threshold_buffer:" << threshold_buffer << std::endl;
   if (msg->data >= threshold_buffer)
   {
     ostringstream ss;
@@ -286,7 +242,6 @@ void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
     laster_manual_count = 0;
     if (!isError && !robot_is_stop)
     {
-      //std::cout << "stop robot >< >< ><" << std::endl;
       ostringstream oss;
       oss.str("");
       oss << "buffer size 大于阈值，停止移动";
@@ -297,11 +252,9 @@ void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
       isError = true;
       robot_is_stop = true;
     }
-    //syslog(LOG_INFO, " clear_buff_size %s", clear_buff_size);
     if (msg->data >= clear_buff_size && isError && !hdl_is_sleep)
     {
       clear_count++;
-      //std::cout << "clear_count " << clear_count << std::endl;
       ostringstream oss;
       oss.str("");
       oss << "clear buffer 第 :" << clear_count << "次";
@@ -311,9 +264,7 @@ void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
       clear_buff_pub.publish(clear_buffer_status);
       if (clear_count >= threshold_clear_count)
       {
-        //std::cout << "stop hdl >< >< ><" << std::endl;
         //机器人运算不足后触发停止定位程序
-        //syslog(LOG_ERR, "clear_buff_size count > %s stop hdl >< >< ><", threshold_clear_count);
         ostringstream oss;
         oss.str("");
         oss << "clear_buff_size  > :" << threshold_clear_count << "stop hdl >< >< ><";
@@ -327,7 +278,6 @@ void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
       }
     }
     syslog(LOG_INFO, "********************buffer size warnning************************");
-    //syslog(LOG_INFO, "HZ:%d", current_hz);
     syslog(LOG_INFO, "position :(%d,%d,%d)", current_pose.pose.pose.position.x, current_pose.pose.pose.position.y, current_pose.pose.pose.position.z);
     syslog(LOG_INFO, "yd_distance offset:%d", yd_distance);
     syslog(LOG_INFO, "euler angle offset:(%d,%d,%d)", (roll_ - roll), (pitch_ - pitch), (yaw_ - yaw));
@@ -335,8 +285,6 @@ void monitor_ros_node::bufferCallback(const std_msgs::Int16::ConstPtr &msg)
   }
   else
   {
-    //std::cout << "laster_manual_count ++" << std::endl;
-    //syslog(LOG_INFO, "laster_manual_count ++ ");
     laster_manual_count++;
     if (isError && robot_is_stop)
     {
