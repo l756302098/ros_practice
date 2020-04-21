@@ -1,0 +1,24 @@
+<launch>
+  <node pkg="yd_monitor" name="monitor" type="monitor" output="screen" respawn ="true">
+    <param name="robotpose_topic" value="/odom_localization" />
+    <param name="threshold_hz" value="13" />
+    <param name="threshold_pos" value="0.2" />
+    <param name="threshold_buffer" value="20" />
+    <param name="clear_buff_size" value="60" />
+    <param name="control_topic" value="/robot_position_status" />
+    <param name="buffer_topic" value="/laser_buffer_size" />
+    <param name="clear_buff_topic" value="/test/clear_laser_buffer" />
+    <param name="stop_hdl_topic" value="/stop_receive_laser" />
+    <param name="jump_topic" value="/invalid_jump" />
+    <param name="threshold_jump_time" value="3" />
+    <param name="threshold_clear_count" value="3" />
+    <param name="laster_recover_count" value="15" />
+    <param name="laster_sleep_time" value="60" />
+    <param name="velodyne_threshold_hz" value="14" />
+  </node>
+ <node pkg="yd_monitor" name="hdl_daemon" type="hdl_daemon"  output="screen" respawn ="true">
+  <param name="topic" value="/hdl/heartbeat" />
+  <param name="timeout_num" value="5" />
+  <param name="file_name" value="$(find robot_monitor)/restart.sh" />
+  </node> 
+</launch>

@@ -205,7 +205,7 @@ bool obstacle_detection_new::detection(float &obs_dis)
         }
     }
     //reset task status
-    reset();
+    //reset();
     if (is_pub_road)
         map_pub.publish(obs_map);
     if (is_obs)

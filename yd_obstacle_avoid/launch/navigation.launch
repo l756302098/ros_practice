@@ -9,18 +9,19 @@
  -->
 <launch>
 
-	<param name="use_sim_time" value="false" />
+	<param name="use_sim_time" value="true" />
 	
 	
 	<!--  ****** TF *****  -->
-	<node pkg="tf" type="static_transform_publisher" name="lidar_to_base" args="0.0 0.0 1.5 0 0 0.0 /lidar_pose /base_link 10"/ respawn="true">
+	<node pkg="tf" type="static_transform_publisher" name="lidar_to_base" args="0.0 0.0 1.5 0 0 0.0 /lidar_pose /base_link 10" respawn="true">
+</node>
 	<!--
  	
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_base" args="0.0 0.0 0.0 0 0 0.0 /odom /base_link 10"/>
     <node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.0 0.0 0.0 0 0 0.0 /base_link /laser_link 10"/>
 	-->
 	<!--  ****** Maps *****  -->
-	<node name="map_server" pkg="map_server" type="map_server" args="$(find yd_obstacle_avoid)/maps/beijing.yaml" output="screen" respawn="true">
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find yd_obstacle_avoid)/maps/park.yaml" output="screen" respawn="true">
 		<param name="frame_id" value="/map"/>
 	</node>
 
