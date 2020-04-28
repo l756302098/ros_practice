@@ -18,7 +18,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_library(modbus
+  src/modbus.cpp
+  src/modbus_exception.h
+)
 
-add_executable(map_server src/map_server.cpp)
-target_link_libraries(map_server ${catkin_LIBRARIES})
-add_dependencies(map_server ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
+
+#add_executable(map_server src/map_server.cpp)
+#target_link_libraries(map_server ${catkin_LIBRARIES})
+#add_dependencies(map_server ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
+
+add_executable(example src/example.cpp)
+target_link_libraries(example 
+${catkin_LIBRARIES}
+modbus)
+add_dependencies(example ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})

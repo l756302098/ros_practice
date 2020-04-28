@@ -14,8 +14,6 @@ GlobalPlanner:
 
   old_navfn_behavior: false
 
- 
-
   lethal_cost: 253
 
   neutral_cost: 50
