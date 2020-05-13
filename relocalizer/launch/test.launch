@@ -1,0 +1,5 @@
+<launch> 
+  <node pkg="relocalizer" name="relocalizer" type="relocalizer" output="screen">
+ <param name="map" value="/home/li/yida.pcd" /> 
+  </node>
+</launch>
