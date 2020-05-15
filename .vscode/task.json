@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "shell",
+			"command":"source /opt/ros/melodic/setup.bash; catkin_make -DMAKD_BUILD_TYPE=Debug",
+			"args": [
+			],
+			"problemMatcher": [
+				"$catkin-gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+		},
+		{
+			"label": "clean",
+			"type": "shell",
+			"command":"source /opt/ros/melodic/setup.bash; catkin_make clean",
+			"problemMatcher": [
+				"$catkin-gcc"
+			]
+		},		
+		{
+			"label": "release",
+			"type": "shell",
+			"command":"source /opt/ros/melodic/setup.bash; catkin_make -DMAKD_BUILD_TYPE=Release",
+			"problemMatcher": [
+				"$catkin-gcc"
+			]
+		},		
+	]
+}

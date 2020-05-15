@@ -97,7 +97,8 @@
         "*.dat": "cpp",
         "mixinvector": "cpp",
         "fast_back_stack": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "regex": "cpp"
     },
     "cmake.configureOnOpen": true
 }
