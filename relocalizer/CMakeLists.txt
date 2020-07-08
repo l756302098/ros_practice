@@ -33,6 +33,8 @@ catkin_package(
 ## Build ##
 ###########
 
+set(BEAST_INCLUDE_DIR core/beast/include)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(

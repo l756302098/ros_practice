@@ -58,7 +58,7 @@ void PoseDrawer::pose_callback(const nav_msgs::OdometryConstPtr &pose_msg)
     {
         std::cerr << e.what() << '\n';
     }
-    center_pose.header.frame_id = "lidar_pose";
+    center_pose.header.frame_id = "map";
     center_pose.header.stamp = current_time;
     std::cout << "pose:" << center_pose << std::endl;
     center_pub.publish(center_pose);

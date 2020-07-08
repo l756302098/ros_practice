@@ -23,9 +23,9 @@ class message_sync_ros_node
 private:
     ros::NodeHandle node_;
     ros::Publisher rgb_pub;
-    typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::CompressedImage, nav_msgs::Odometry> slamSyncPolicy;
+    typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::Image, nav_msgs::Odometry> slamSyncPolicy;
     message_filters::Subscriber<nav_msgs::Odometry> *odom_sub_;
-    message_filters::Subscriber<sensor_msgs::CompressedImage> *visible_sub_;
+    message_filters::Subscriber<sensor_msgs::Image> *visible_sub_;
     message_filters::Subscriber<nav_msgs::Odometry> *yt_sub_;
     message_filters::Synchronizer<slamSyncPolicy> *sync_;
     std::string odom_topic;
@@ -36,23 +36,23 @@ private:
 public:
     message_sync_ros_node();
     ~message_sync_ros_node();
-    void callback(const nav_msgs::Odometry::ConstPtr &odom_data, const sensor_msgs::CompressedImage::ConstPtr &visible_image, const nav_msgs::Odometry::ConstPtr &yt_data);
+    void callback(const nav_msgs::Odometry::ConstPtr &odom_data, const sensor_msgs::Image::ConstPtr &visible_image, const nav_msgs::Odometry::ConstPtr &yt_data);
     void update();
 };
 
 message_sync_ros_node::message_sync_ros_node()
 {
-    ros::param::get("/message_sync/odom_topic", odom_topic);
-    ros::param::get("/message_sync/visible_topic", visible_topic);
-    ros::param::get("/message_sync/thermal_topic", thermal_topic);
-    ros::param::get("/message_sync/yt_topic", yt_topic);
+    ros::param::get("~/odom_topic", odom_topic);
+    ros::param::get("~/visible_topic", visible_topic);
+    ros::param::get("~/thermal_topic", thermal_topic);
+    ros::param::get("~/yt_topic", yt_topic);
     std::cout << "odom_topic:" << odom_topic << std::endl;
     std::cout << "visible_topic:" << visible_topic << std::endl;
     std::cout << "thermal_topic:" << thermal_topic << std::endl;
     std::cout << "yt_topic:" << yt_topic << std::endl;
     rgb_pub = node_.advertise<yidamsg::pointcloud_color>("/yd/pointcloud/vt", 10);
     odom_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(node_, odom_topic, 1);
-    visible_sub_ = new message_filters::Subscriber<sensor_msgs::CompressedImage>(node_, visible_topic, 1);
+    visible_sub_ = new message_filters::Subscriber<sensor_msgs::Image>(node_, visible_topic, 1);
     yt_sub_ = new message_filters::Subscriber<nav_msgs::Odometry>(node_, yt_topic, 1);
     sync_ = new message_filters::Synchronizer<slamSyncPolicy>(slamSyncPolicy(20), *odom_sub_, *visible_sub_, *yt_sub_);
     sync_->registerCallback(boost::bind(&message_sync_ros_node::callback, this, _1, _2, _3));
@@ -66,7 +66,7 @@ void message_sync_ros_node::update()
 {
 }
 
-void message_sync_ros_node::callback(const nav_msgs::Odometry::ConstPtr &odom_data, const sensor_msgs::CompressedImage::ConstPtr &visible_image, const nav_msgs::Odometry::ConstPtr &yt_data)
+void message_sync_ros_node::callback(const nav_msgs::Odometry::ConstPtr &odom_data, const sensor_msgs::Image::ConstPtr &visible_image, const nav_msgs::Odometry::ConstPtr &yt_data)
 {
     // Test start
     // cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(visible_image, sensor_msgs::image_encodings::BGR8);
@@ -90,14 +90,15 @@ void message_sync_ros_node::callback(const nav_msgs::Odometry::ConstPtr &odom_da
     nav_msgs::Odometry current_pose;
     current_pose = *odom_data;
 
-    sensor_msgs::CompressedImage v_img;
+    sensor_msgs::Image v_img;
     v_img = *visible_image;
 
     nav_msgs::Odometry yt_pose;
     yt_pose = *yt_data;
 
     yidamsg::pointcloud_color data;
-    data.v_format = v_img.format;
+    data.version = 1;
+    data.v_format = ".jpg";
     data.v_data = v_img.data;
     //data.pose = pose->pose;
 

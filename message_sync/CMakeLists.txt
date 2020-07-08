@@ -42,9 +42,9 @@ catkin_package(INCLUDE_DIRS include
 ##add_dependencies(sync_thermal ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
 #target_link_libraries(sync_thermal ${catkin_LIBRARIES})
 
-#add_executable(sync_gray src/sync_gray.cpp src/base64.cpp)
-#add_dependencies(sync_gray ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
-#target_link_libraries(sync_gray ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
+add_executable(sync_visible src/sync_visible.cpp src/base64.cpp)
+add_dependencies(sync_visible ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
+target_link_libraries(sync_visible ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
 
 #add_executable(cv_channles src/cv_channles.cpp src/base64.cpp)
 #add_dependencies(cv_channles ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})

@@ -196,6 +196,9 @@ void getstream_callback(const sensor_msgs::Image& msg)
         int dwBufSize = vc.size();
         if(pBuffer[4] == 0x67)
         {
+             //set flag
+            is_com = true;
+
             h264_decoder.decode(pBuffer, dwBufSize);
             g_result_pic = h264_decoder.getMat();
 
@@ -215,8 +218,6 @@ void getstream_callback(const sensor_msgs::Image& msg)
             dd.name = image_name;
             dd.pose = robot_pose;
             data.push_back(dd);
-             //set flag
-            is_com = true;
         }
     }
     catch(const std::exception& e)
