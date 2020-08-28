@@ -1,6 +1,0 @@
-<launch>
- <node pkg="pcd_map_server" name="map_server" type="map_server"  output="screen" respawn ="false">
-  <param name="globalmap_pcd" value="/home/li/Documents/park/park_0.pcd" />
-  <param name="downsample_resolution" value="0.1" />
-  </node> 
-</launch>
