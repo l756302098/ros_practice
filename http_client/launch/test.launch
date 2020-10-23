@@ -1,5 +1,0 @@
-<launch> 
-  <node pkg="http_client" name="http_client" type="http_client" output="screen">
-  <param name="root_path" value="/home/li/capture/051403" />
-  </node>
-</launch>

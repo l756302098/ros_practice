@@ -1,0 +1,47 @@
+1.检查要同步的电脑的时间的时区是否一致，不一致同意修改为CST 时区
+命令：date
+2.安装ntp,Xavier 和工控机的 架构不同，需要安装对应的程序
+有网直接安装，没网安装包
+sudo apt-get install ntp
+
+工控机 安装 amd64
+Xavier 安装 arm
+
+工控机  server
+sudo dpkg -i libopts25_1%3a5.18.7-3_amd64.deb
+sudo dpkg -i ntp_1%3a4.2.8p4+dfsg-3ubuntu5.9_amd64.deb 
+
+Xavier client   
+sudo dpkg -i libopts25_1%3a5.18.12-4_arm64.deb
+sudo dpkg -i ntp_1%3a4.2.8p10+dfsg-5ubuntu7.1_arm64.deb
+
+3.
+Xavier-配置配置修改
+安装完成后会有/etc/ntp.conf
+在client 上  添加
+server 192.168.1.10
+restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap     
+
+工控机-配置修改
+在 server 上 添加
+restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+server 127.127.1.0
+fudge 127.127.1.0 stratum 10
+0
+配置完成重启
+sudo /etc/init.d/ntp restart
+
+4.验证有效性
+ntpq -p
+
+*表示目前使用的ntp server，这里选择的本机；
+st：即stratum阶层，值越小表示ntp serve的精准度越高；
+when：几秒前曾做过时间同步更新的操作；
+Poll表示，每隔多少毫秒与ntp server同步一次；
+reach：已经向上层NTP服务器要求更新的次数；
+delay：网络传输过程钟延迟的时间；
+offset：时间补偿的结果；
+jitter：Linux系统时间与BIOS硬件时间的差异时间
+
+注意：NTP服务端重启后，客户机要等5分钟再与其进行时间同步。等待的时间可以通过命令 watch ntpq -p来监控。
+
