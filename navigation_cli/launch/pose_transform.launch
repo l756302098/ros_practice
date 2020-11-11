@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="navigation_cli" type="pose_transfrom" name="pose_transform" output="screen">
+  </node>
+</launch>
