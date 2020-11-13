@@ -3,14 +3,16 @@
   <!-- <include file="$(find navigation_cli)/launch/navigation.launch" /> -->
   <node pkg="navigation_cli" type="nav_client" name="nav_client" output="screen" respawn="false" >
     <param name="path_topic" value="/move_base/GlobalPlanner/plan"/>
+    <param name="isvalid_path" value="true"/>
     <param name="cmd_topic" value="/mobile_base/commands/velocity"/>
-    <param name="angle_kp" value="0.5"/>
+    <param name="angle_kp" value="0.4"/>
     <param name="angle_ki" value="0.0"/>
     <param name="angle_kd" value="0.2"/>
     <param name="speed_kp" value="0.45"/>
     <param name="speed_ki" value="0"/>
     <param name="speed_kd" value="0.5"/>
-    <param name="max_throttle" value="0.3"/>
+    <param name="max_throttle" value="0.35"/>
+    <param name="goal_throttle" value="0.2"/>
   </node>
   <include file="$(find navigation_cli)/launch/velocity_smoother.launch" />
   <include file="$(find navigation_cli)/launch/pose_transform.launch" />

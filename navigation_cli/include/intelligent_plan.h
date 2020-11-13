@@ -52,14 +52,16 @@ class intelligent_plan
 private:
     /* param */
     std::string _path_topic,_pose_topic,_cmd_topic;
-	double _speed_kp,_speed_ki,_speed_kd,_angule_kp,_angule_ki,_angule_kd,_max_throttle;
+	double _speed_kp,_speed_ki,_speed_kd,_angule_kp,_angule_ki,_angule_kd,_max_throttle,_goal_throttle;
  	PID pid_steer,pid_speed;
+    bool is_cancel,_valid_path;
     int flag_path, flag_goal, flag_arriving_area, flag_arriving_direction;
     Vector4f robot_pose, navigation_goal;
     Vector3f next_goal;
     nav_msgs::Path path;
+    int goal_seq;
 
-    ros::Publisher planing_result_pub,cmd_pub;
+    ros::Publisher planing_result_pub,cmd_pub,simple_goal_pub,cancle_pub;
     ros::Subscriber test_sub,pose_sub,path_sub,click_sub,goal_sub,cart_pose_sub;
     ros::ServiceServer task_service;
     void connect_server();
@@ -68,7 +70,8 @@ private:
     void cart_pose_callback(const geometry_msgs::PoseStampedConstPtr& pose_msg);
 	void click_callback(const geometry_msgs::PointStampedConstPtr& goal_msg);
     void goal_callback(const geometry_msgs::PoseStampedConstPtr& goal_msg);
-    //ros::NodeHandle nh;
+    bool isvalid_path(const nav_msgs::PathConstPtr& path_msg);
+    bool isvalid_goal(const geometry_msgs::Pose& pose);
 
 public:
     intelligent_plan(/* args */);
@@ -79,7 +82,7 @@ public:
     }
     void update();
     pair<double, double> pid_twist(pair<double, double> robot_goal_distance_angle,bool is_left);
-    void test(const std_msgs::Float32::ConstPtr &msg);
+    void test(const std_msgs::Bool::ConstPtr &msg);
     bool task_service_cb(yidamsg::wali_go_to_position::Request &req,yidamsg::wali_go_to_position::Response &res);
     //communication with move_base
     Client *client;
@@ -99,7 +102,7 @@ public:
         if (state == state.SUCCEEDED)
         {
             ROS_INFO("navigation success!");
-            intelligent_plan::plan_stage = PlanStage::ACTIVE;
+            intelligent_plan::plan_stage = PlanStage::SUCCEEDED;
         }
         else if (state == state.PREEMPTED)
         {
