@@ -90,6 +90,7 @@ void intelligent_plan::update()
 		std_msgs::Bool result;
 		result.data = true;
 		planing_result_pub.publish(result);
+		intelligent_plan::plan_stage = PlanStage::NONE;
 	}else if(intelligent_plan::plan_stage == PlanStage::FAILED){
 		std_msgs::Bool result;
 		result.data = false;
@@ -315,7 +316,8 @@ pair<double, double> intelligent_plan::pid_twist(pair<double, double> robot_goal
         double delta_angle = robot_pose[3] - navigation_goal[3];
 		std::cout << "delta goal angle:" << delta_angle << std::endl;
         if(fabs(delta_angle)>10){
-			cmd_angle = 0.15;
+			//turn left or right
+			cmd_angle = 0.2;
 			return make_pair(cmd_speed,cmd_angle); 
         }else{
 			ROS_INFO("arriving angle");
