@@ -72,6 +72,7 @@ private:
     void goal_callback(const geometry_msgs::PoseStampedConstPtr& goal_msg);
     bool isvalid_path(const nav_msgs::PathConstPtr& path_msg);
     bool isvalid_goal(const geometry_msgs::Pose& pose);
+    void publishZero();
 
 public:
     intelligent_plan(/* args */);

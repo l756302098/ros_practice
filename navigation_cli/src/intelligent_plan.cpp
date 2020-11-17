@@ -185,6 +185,9 @@ void intelligent_plan::path_callback(const nav_msgs::PathConstPtr& path_msg){
 }
 
 void intelligent_plan::cart_pose_callback(const geometry_msgs::PoseStampedConstPtr& pose_msg){
+	if(is_cancel){
+		publishZero();
+	}
 	Quaternionf quanternion = Quaternionf(pose_msg->pose.orientation.w, pose_msg->pose.orientation.x, pose_msg->pose.orientation.y, pose_msg->pose.orientation.z);
     robot_pose << pose_msg->pose.position.x, pose_msg->pose.position.y, pose_msg->pose.position.z, radian_to_angle(quanternion.toRotationMatrix().eulerAngles(0,1,2)[2]);
     geometry_msgs::PoseStamped pose;
@@ -225,19 +228,20 @@ void intelligent_plan::cart_pose_callback(const geometry_msgs::PoseStampedConstP
 	    cmd_pub.publish(motor_control);
 	    //cout << "published v and w is: " << twist.first << "  " << twist.second << endl;
     }else{
-		geometry_msgs::Twist motor_control;
-		motor_control.linear.x = 0;
-		motor_control.angular.z = 0;
-		cmd_pub.publish(motor_control);
+		publishZero();
 	}
+}
+
+void intelligent_plan::publishZero(){
+	geometry_msgs::Twist motor_control;
+	motor_control.linear.x = 0;
+	motor_control.angular.z = 0;
+	cmd_pub.publish(motor_control);
 }
 
 void intelligent_plan::pose_callback(const nav_msgs::OdometryConstPtr& pose_msg){
 	if(is_cancel){
-		geometry_msgs::Twist motor_control;
-		motor_control.linear.x = 0;
-		motor_control.angular.z = 0;
-		cmd_pub.publish(motor_control);
+		publishZero();
 	}
     Quaternionf quanternion = Quaternionf(pose_msg->pose.pose.orientation.w, pose_msg->pose.pose.orientation.x, pose_msg->pose.pose.orientation.y, pose_msg->pose.pose.orientation.z);
     robot_pose << pose_msg->pose.pose.position.x, pose_msg->pose.pose.position.y, pose_msg->pose.pose.position.z, radian_to_angle(quanternion.toRotationMatrix().eulerAngles(0,1,2)[2]);
@@ -279,10 +283,7 @@ void intelligent_plan::pose_callback(const nav_msgs::OdometryConstPtr& pose_msg)
 	    motor_control.angular.z = twist.second;
 	    cmd_pub.publish(motor_control);
     }else{
-		geometry_msgs::Twist motor_control;
-		motor_control.linear.x = 0;
-		motor_control.angular.z = 0;
-		cmd_pub.publish(motor_control);
+		publishZero();
 	}
 }
 void intelligent_plan::click_callback(const geometry_msgs::PointStampedConstPtr& goal_msg){
