@@ -1,0 +1,7 @@
+<launch> 
+  <node pkg="message_sync" name="sync_imu" type="sync_imu" output="screen" respawn ="true">
+ <param name="imu_topic" value="/imu/data" />
+ <param name="yt_topic" value="/yida/yuntai/position" />
+ <param name="root_path" value="/home/li/bag/1218/3" />
+  </node>
+</launch>

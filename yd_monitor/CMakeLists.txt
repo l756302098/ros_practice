@@ -17,12 +17,10 @@ SET( CMAKE_CXX_FLAGS "-std=c++11 -O3")
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
-add_executable(monitor src/monitor.cpp
- src/log4z.cpp)
-add_dependencies(monitor ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS} src/log4z.cpp)
-target_link_libraries(monitor ${catkin_LIBRARIES})
+##add_executable(monitor src/monitor.cpp src/log4z.cpp)
+#add_dependencies(monitor ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS} src/log4z.cpp)
+#target_link_libraries(monitor ${catkin_LIBRARIES})
 
-add_executable(hdl_daemon src/hdl_daemon.cpp)
-add_dependencies(hdl_daemon ${catkin_EXPORTED_TARGETS}  ${catkin_INCLUDE_DIRS})
-target_link_libraries(hdl_daemon
-     ${catkin_LIBRARIES})
+#add_executable(hdl_daemon src/hdl_daemon.cpp)
+#add_dependencies(hdl_daemon ${catkin_EXPORTED_TARGETS}  ${catkin_INCLUDE_DIRS})
+#target_link_libraries(hdl_daemon ${catkin_LIBRARIES})

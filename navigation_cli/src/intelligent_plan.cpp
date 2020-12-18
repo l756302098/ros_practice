@@ -57,7 +57,7 @@ intelligent_plan::intelligent_plan(/* args */)
     test_sub = nh.subscribe("/walle/walk/cancel", 1, &intelligent_plan::test, this);
 	planing_result_pub = nh.advertise<std_msgs::Bool>("/walle/walk/done", 5, true);
     //server
-    task_service = nh.advertiseService("/walle/walk/goal", &intelligent_plan::task_service_cb,this);
+    //task_service = nh.advertiseService("/walle/walk/goal", &intelligent_plan::task_service_cb,this);
     //move_base
 	path_sub = nh.subscribe(_path_topic, 1, &intelligent_plan::path_callback, this);
 	pose_sub = nh.subscribe(_pose_topic, 1, &intelligent_plan::pose_callback, this);
@@ -116,7 +116,7 @@ void intelligent_plan::test(const std_msgs::Bool::ConstPtr &msg)
 	// actionlib_msgs::GoalID empty_goal;
 	// cancle_pub.publish(empty_goal);
 }
-
+/*
 bool intelligent_plan::task_service_cb(yidamsg::wali_go_to_position::Request &req,yidamsg::wali_go_to_position::Response &res){
     geometry_msgs::Pose new_goal;
     new_goal.position.x = req.pose.position.x;
@@ -155,7 +155,7 @@ bool intelligent_plan::task_service_cb(yidamsg::wali_go_to_position::Request &re
 	res.success = true;
     return true;
 }
-
+*/
 void intelligent_plan::path_callback(const nav_msgs::PathConstPtr& path_msg){
 	if(flag_goal){
 		if(_valid_path){

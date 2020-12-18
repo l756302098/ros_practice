@@ -26,7 +26,7 @@
 #include <tf/tf.h>
 #include "std_msgs/Float32.h"
 #include <pid.h>
-#include "yidamsg/wali_go_to_position.h"
+//#include "yidamsg/wali_go_to_position.h"
 
 #ifndef NAV_INTELLIGENT_PLAN_VALUES_H_
 #define NAV_INTELLIGENT_PLAN_VALUES_H_
@@ -84,7 +84,7 @@ public:
     void update();
     pair<double, double> pid_twist(pair<double, double> robot_goal_distance_angle,bool is_left);
     void test(const std_msgs::Bool::ConstPtr &msg);
-    bool task_service_cb(yidamsg::wali_go_to_position::Request &req,yidamsg::wali_go_to_position::Response &res);
+    //bool task_service_cb(yidamsg::wali_go_to_position::Request &req,yidamsg::wali_go_to_position::Response &res);
     //communication with move_base
     Client *client;
     static PlanStage plan_stage;
