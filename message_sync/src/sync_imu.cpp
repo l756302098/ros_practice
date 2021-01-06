@@ -50,7 +50,7 @@ class message_sync_ros_node
 {
 private:
     ros::NodeHandle node_;
-    ros::Subscriber init_sub;
+    ros::Subscriber init_sub,yt_sub,imu_sub;
     typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, sensor_msgs::Imu> slamSyncPolicy;
     message_filters::Subscriber<nav_msgs::Odometry> *yt_sub_;
     message_filters::Subscriber<sensor_msgs::Imu> *imu_sub_;
@@ -69,6 +69,8 @@ public:
     void callback(const nav_msgs::Odometry::ConstPtr &yt_data,const sensor_msgs::Imu::ConstPtr &imu_data);
     void update();
     void initCB(const std_msgs::Bool::ConstPtr &msg);
+    void ytCB(const nav_msgs::Odometry::ConstPtr &yt_data);
+    void imuCB(const sensor_msgs::Imu::ConstPtr &imu_data);
     void isDirectory(string path);
 };
 
@@ -92,6 +94,10 @@ message_sync_ros_node::message_sync_ros_node()
     imu_sub_ = new message_filters::Subscriber<sensor_msgs::Imu>(node_, imu_topic, 1);
     sync_ = new message_filters::Synchronizer<slamSyncPolicy>(slamSyncPolicy(20), *yt_sub_, *imu_sub_);
     sync_->registerCallback(boost::bind(&message_sync_ros_node::callback, this, _1, _2));
+
+    //sub
+    yt_sub = node_.subscribe<nav_msgs::Odometry>(yt_topic, 1, &message_sync_ros_node::ytCB, this);
+    imu_sub = node_.subscribe<sensor_msgs::Imu>(imu_topic, 1, &message_sync_ros_node::imuCB, this);
 }
 
 void message_sync_ros_node::initCB(const std_msgs::Bool::ConstPtr &msg){
@@ -126,7 +132,7 @@ void message_sync_ros_node::callback(const nav_msgs::Odometry::ConstPtr &yt_data
     float angle_x = yt_data->pose.pose.position.x;
     float angle_y = yt_data->pose.pose.position.y;
     float angle_z = yt_data->pose.pose.position.z;
-    std::cout << "angle_x:" << angle_x<< " angle_y:" << angle_y<< " angle_z:" << angle_z << std::endl;
+    //std::cout << "angle_x:" << angle_x<< " angle_y:" << angle_y<< " angle_z:" << angle_z << std::endl;
     //
     //float imu_x = imu_data->orientation.x;
     geometry_msgs::Quaternion qua = imu_data->orientation;
@@ -156,6 +162,36 @@ void message_sync_ros_node::callback(const nav_msgs::Odometry::ConstPtr &yt_data
     std::cout << "imu dx:" << dx<< " dy:" << dy << " dz:" << dz << std::endl;
     map_points << "imu dx:" << dx<< " dy:" << dy << " dz:" << dz << std::endl;
 }
+
+void message_sync_ros_node::ytCB(const nav_msgs::Odometry::ConstPtr &yt_data)
+{
+    float angle_x = abs(yt_data->pose.pose.position.x)/100;
+    float angle_y = abs(yt_data->pose.pose.position.y)/100;
+    float angle_z = abs(yt_data->pose.pose.position.z)/100; 
+    std::cout << "PTZ data receive time:" << yt_data->header.stamp << " angle_x:" << angle_x<< " angle_y:" << angle_y << " angle_z:" << angle_z << std::endl;
+    map_points << "PTZ data receive time:" << yt_data->header.stamp << " angle_x:" << angle_x<< " angle_y:" << angle_y << " angle_z:" << angle_z << std::endl;
+}
+
+void message_sync_ros_node::imuCB(const sensor_msgs::Imu::ConstPtr &imu_data)
+{
+    geometry_msgs::Quaternion qua = imu_data->orientation;
+    Eigen::Quaterniond q(qua.w, qua.x, qua.y, qua.z);
+    double roll,pitch,yaw;
+    toEulerAngle(q,roll,pitch,yaw);
+    if(is_init){
+        std::cout << "init:" << std::endl;
+        init_imu_x = toAngle(roll);
+        init_imu_y = toAngle(pitch);
+        init_imu_z = toAngle(yaw);
+        is_init = false;
+    }
+    float dx = abs(toAngle(roll) - init_imu_x);
+    float dy = abs(toAngle(pitch) - init_imu_y);
+    float dz = abs(toAngle(yaw) - init_imu_z);
+    std::cout << "IMU data receive time:" << imu_data->header.stamp << " roll:" << dx<< " pitch:" << dy << " yaw:" << dz << std::endl;
+    map_points << "IMU data receive time:" << imu_data->header.stamp << " roll:" << dx<< " pitch:" << dy << " yaw:" << dz << std::endl;
+}
+
 
 int main(int argc, char **argv)
 {

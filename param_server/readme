@@ -1,0 +1,6 @@
+git clone https://github.com/jbeder/yaml-cpp
+mkdir build
+cmake .. -DYAML_BUILD_SHARED_LIBS=ON
+make -j4 && sudo make install
+find_package(yaml-cpp REQUIRED)
+target_link_libraries( ${PROJECT_NAME} yaml-cpp)
