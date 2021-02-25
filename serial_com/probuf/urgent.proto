@@ -1,0 +1,24 @@
+syntax = "proto3";
+package ydpb;
+
+import "google/protobuf/timestamp.proto";
+
+message Pos{
+  float pos_x = 1;
+  float pos_y = 2;
+  float pos_z = 3;
+  float qua_x = 4;
+  float qua_y = 5;
+  float qua_z = 6;
+  float qua_w = 7;
+}
+
+message Urgent{
+  repeated float temp = 1;
+  repeated Pos cpos = 2;
+  repeated Pos hpos = 3;
+  float bat = 4;
+  int32 tid = 5;
+  int32 err = 6;
+  google.protobuf.Timestamp last_updated = 7;
+}

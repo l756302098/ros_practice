@@ -1,0 +1,9 @@
+<launch> 
+  <node pkg="message_sync" name="message_sync" type="save_message" output="screen" respawn ="true">
+ <param name="visible_topic" value="/tb/rtsp/visible/decode" />
+ <param name="thermal_topic" value="/yida/internal/temperature" />
+ <param name="yt_topic" value="/yida/yuntai/position" />
+ <param name="root_path" value="/home/li/bag/0224" />
+  <param name="record" value="true" />
+  </node>
+</launch>

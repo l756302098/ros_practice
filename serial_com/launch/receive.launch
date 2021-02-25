@@ -1,0 +1,5 @@
+<launch> 
+  <node pkg="serial_com" name="receive_node" type="receive_node" output="screen" respawn ="true">
+  <param name="tty_name" value="/dev/ttyUSB1" />
+  </node>
+</launch>
