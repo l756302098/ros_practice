@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="eigen_demo" type="eigen_demo_node" name="eigen_demo_node" output="screen" respawn="false">
+      <param name="camera_file" value="$(find eigen_demo)/launch/66color_map_calibration0_-10.yaml" />
+  </node>
+</launch>

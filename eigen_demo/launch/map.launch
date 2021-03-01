@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="eigen_demo" type="map_server_node" name="map_server_node" output="screen" respawn="false">
+      <param name="globalmap_pcd" value="$(find eigen_demo)/launch/0.03.pcd" />
+      <param name="downsample_resolution" value="0.1" />
+  </node>
+</launch>
