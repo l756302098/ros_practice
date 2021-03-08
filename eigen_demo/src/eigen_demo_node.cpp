@@ -4,7 +4,7 @@
  * @Author: li
  * @Date: 2021-02-28 11:33:51
  * @LastEditors: li
- * @LastEditTime: 2021-03-01 15:33:06
+ * @LastEditTime: 2021-03-01 17:57:49
  */
 #include "ros/ros.h"
 // Eigen
@@ -75,6 +75,7 @@ void target_callback(const geometry_msgs::PoseStampedConstPtr &msg){
     //forward
     Eigen::Vector3d v(1, 0, 0);
     Eigen::Vector3d f = q * v;
+    
     Eigen::Vector3d c(t_pos.pose.position.x-c_pos.pose.position.x, t_pos.pose.position.y-c_pos.pose.position.y, t_pos.pose.position.z-c_pos.pose.position.z);
 
     Eigen::Matrix3d rotMatrix;

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: li
+ * @Date: 2021-01-11 09:42:51
+ * @LastEditors: li
+ * @LastEditTime: 2021-03-05 15:44:07
+ */
 #include <ros/ros.h>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -8,9 +16,11 @@
 #include "std_msgs/String.h"
 #include "serial_com/async_serial.h"
 #include "urgent.pb.h"
+#include <google/protobuf/util/time_util.h>
 
 using namespace std;
 using namespace boost::asio;
+using google::protobuf::util::TimeUtil;
 
 class Foo
 {
@@ -47,7 +57,7 @@ int main(int argc, char **argv)
   position->set_qua_y(0);
   position->set_qua_z(0);
   position->set_qua_w(1);
-  for(int i=0;i<30;i++){
+  for(int i=0;i<20;i++){
       ydpb::Pos* temp = msg.add_hpos();
       temp->set_pos_x(0);
       temp->set_pos_y(0);
@@ -60,6 +70,10 @@ int main(int argc, char **argv)
   msg.set_bat(1.0);
   msg.set_tid(152);
   msg.set_err(10011);
+  google::protobuf::Timestamp timestamp;
+  timestamp.set_seconds(time(NULL));
+  timestamp.set_nanos(0);
+  msg.set_allocated_last_updated(&timestamp);
   std::string output = "";
   if(msg.SerializeToString(&output)){
       std::cout << "SerializeToString success! output size:" << sizeof(output) << std::endl;

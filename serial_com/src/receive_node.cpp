@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: li
+ * @Date: 2021-01-08 13:56:17
+ * @LastEditors: li
+ * @LastEditTime: 2021-03-05 15:40:09
+ */
 #include <ros/ros.h>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -9,9 +17,11 @@
 #include "serial_com/async_serial.h"
 #include "urgent.pb.h"
 #include <vector>
+#include <google/protobuf/util/time_util.h>
 
 using namespace std;
 using namespace boost::asio;
+using google::protobuf::util::TimeUtil;
 
 class Foo
 {
@@ -21,6 +31,7 @@ public:
 	void received(const char *data, unsigned int len)
 	{
 		string s(data,len);
+    //std::cout << "receive:" << s << std::endl;
     for(int i=0;i<len;i++){
       buff.push_back(*data);
       data++;
@@ -30,7 +41,10 @@ public:
       result.assign(buff.begin(), buff.end());
       ydpb::Urgent msg;
       msg.ParseFromString(result);
-      std::cout << "receive one message! result:" << msg.tid() << " time:" << msg.last_updated().nanos() << std::endl;
+      std::cout << "receive one message! result:" << msg.tid() << std::endl;
+      if (msg.has_last_updated()) {
+        std::cout << "  Updated: " << TimeUtil::ToString(msg.last_updated()) << endl;
+      }
       buff.clear();
       //result.clear();
     }
