@@ -4,7 +4,7 @@
  * @Author: li
  * @Date: 2021-01-11 09:42:51
  * @LastEditors: li
- * @LastEditTime: 2021-03-05 15:44:07
+ * @LastEditTime: 2021-03-08 16:22:53
  */
 #include <ros/ros.h>
 #include <boost/asio.hpp>
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   position->set_qua_y(0);
   position->set_qua_z(0);
   position->set_qua_w(1);
-  for(int i=0;i<20;i++){
+  for(int i=0;i<1;i++){
       ydpb::Pos* temp = msg.add_hpos();
       temp->set_pos_x(0);
       temp->set_pos_y(0);
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
   msg.set_allocated_last_updated(&timestamp);
   std::string output = "";
   if(msg.SerializeToString(&output)){
-      std::cout << "SerializeToString success! output size:" << sizeof(output) << std::endl;
+    std::cout << "SerializeToString success! output size:" << sizeof(output) << std::endl;
   }
   
   //fstream output("./log", ios::out | ios::trunc | ios::binary);
@@ -85,6 +85,7 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     //serial.writeString("Hello world\n");
+    std::cout << "output:" << output << std::endl;
     serial.writeString(output+"\n");
 	  ros::spinOnce();
     rate.sleep();

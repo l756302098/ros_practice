@@ -1,5 +1,5 @@
 <launch> 
   <node pkg="serial_com" name="send_node" type="send_node" output="screen" respawn ="true">
-  <param name="tty_name" value="/dev/ttyUSB1" />
+  <param name="tty_name" value="/dev/ttyUSB0" />
   </node>
 </launch>

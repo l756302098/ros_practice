@@ -54,3 +54,7 @@ target_link_libraries(sync_imu ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
 add_executable(save_message src/save_message.cpp src/base64.cpp)
 add_dependencies(save_message ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
 target_link_libraries(save_message ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
+
+add_executable(pub_node src/pub.cpp)
+add_dependencies(pub_node ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
+target_link_libraries(pub_node ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
