@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="geo_demo" type="geo" name="geo_node" output="screen" respawn="false">
+     
+  </node>
+</launch>
