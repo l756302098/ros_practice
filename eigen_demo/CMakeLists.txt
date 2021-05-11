@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   geometry_msgs
+  nav_msgs
 )
 find_package(Eigen3 REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -70,7 +71,7 @@ find_package(Eigen3 REQUIRED)
 #   Action2.action
 # )
 
-## Generate added messages and services with any dependencies listed here
+## Generate added messages and sstate_pub_ervices with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
 #   sensor_msgs
@@ -108,7 +109,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES eigen_demo
-  CATKIN_DEPENDS cv_bridge pcl_conversions pcl_ros roscpp sensor_msgs geometry_msgs
+  CATKIN_DEPENDS cv_bridge pcl_conversions pcl_ros roscpp sensor_msgs geometry_msgs nav_msgs
 #  DEPENDS system_lib
 )
 
@@ -156,6 +157,11 @@ target_link_libraries(${PROJECT_NAME}_node
 add_executable(map_server_node src/map_server_node.cpp)
 add_dependencies(map_server_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(map_server_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(gps src/gps_node.cpp)
+target_link_libraries(gps
   ${catkin_LIBRARIES}
 )
 #############

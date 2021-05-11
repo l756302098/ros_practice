@@ -4,7 +4,7 @@
  * @Author: li
  * @Date: 2021-02-28 11:33:51
  * @LastEditors: li
- * @LastEditTime: 2021-03-01 17:57:49
+ * @LastEditTime: 2021-04-12 18:00:38
  */
 #include "ros/ros.h"
 // Eigen
@@ -127,7 +127,6 @@ int main(int argc, char **argv)
     std::cout << transform.linear() << std::endl;
     */
     cv::Mat color_lidar_exRT;
-    std::string color_lidar_yamlfilepath;
     ReadCalibrationFile(camera_file, color_lidar_exRT);
 
     Eigen::Matrix4d transform;
@@ -142,6 +141,7 @@ int main(int argc, char **argv)
     rotation << a3d_transform.linear();
     qua = rotation;
 
+    std::cout << "qua x:" << qua.x()<< " y:" << qua.y()<< " z:" << qua.z()<< " w:" << qua.w() << std::endl;
     Eigen::Vector3d eulerAngle=rotation.eulerAngles(2,1,0);
     std::cout << "roll:" << eulerAngle(0) << std::endl;
     std::cout << "pitch:" << eulerAngle(1) << std::endl;

@@ -4,7 +4,7 @@
  * @Author: li
  * @Date: 2021-05-11 16:38:53
  * @LastEditors: li
- * @LastEditTime: 2021-05-11 17:37:55
+ * @LastEditTime: 2021-05-11 17:51:50
  */
 #include "ros/ros.h"
 #include <sensor_msgs/NavSatFix.h>
@@ -15,18 +15,10 @@
 using namespace std;
 using namespace GeographicLib;
 Geocentric earth(Constants::WGS84_a(), Constants::WGS84_f());
-
-struct my_pose
-{
-    double latitude;
-    double longitude;
-    double altitude;
-};
 LocalCartesian geoConverter;
 ros::Publisher state_pub_;
 nav_msgs::Path ros_path_;
 bool init;
-my_pose init_pose;
 
 
 void gpsCallback(const sensor_msgs::NavSatFixConstPtr& gps_msg_ptr)
@@ -49,15 +41,11 @@ void gpsCallback(const sensor_msgs::NavSatFixConstPtr& gps_msg_ptr)
 
         geometry_msgs::PoseStamped pose;
         pose.header = ros_path_.header;
-
         pose.pose.position.x = x;
         pose.pose.position.y = y;
         pose.pose.position.z = z;
-
         ros_path_.poses.push_back(pose);
-
         ROS_INFO("( x:%0.6f ,y:%0.6f ,z:%0.6f)",x ,y ,z );
-
         state_pub_.publish(ros_path_);
     }
 }

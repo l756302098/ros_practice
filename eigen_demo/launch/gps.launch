@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="eigen_demo" type="gps" name="gps_node" output="screen" respawn="false">
+     
+  </node>
+</launch>
