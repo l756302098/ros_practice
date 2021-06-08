@@ -54,7 +54,9 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "geo_demo_node");
     ros::NodeHandle nh("~");
-    ros::Subscriber pose_sub=nh.subscribe("/gps/fix",10,gpsCallback);
+    std::string topic;
+    nh.param<std::string>("topic", topic, "/gps/fix");
+    ros::Subscriber pose_sub=nh.subscribe(topic,10,gpsCallback);
     state_pub_ = nh.advertise<nav_msgs::Path>("gps_path", 10);
     ros::Rate rate(30);
     while (ros::ok())
