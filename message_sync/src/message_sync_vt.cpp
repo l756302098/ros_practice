@@ -276,7 +276,7 @@ int main(int argc, char **argv)
 
     ROS_INFO("message_sync_node node started...");
     ros::Rate rate(10);
-
+    cv::namedWindow("WINDOW");
     while (ros::ok())
     {
         // int seconds = ros::Time::now().sec;

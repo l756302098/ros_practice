@@ -3,7 +3,8 @@ project(message_sync)
 
 add_compile_options(-std=c++11)
 
-find_package(OpenCV REQUIRED )
+find_package(OpenCV REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -14,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   yidamsg
   cv_bridge
   image_transport
-  Eigen3
 )
 
 add_message_files(
@@ -58,3 +58,7 @@ target_link_libraries(save_message ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
 add_executable(pub_node src/pub.cpp)
 add_dependencies(pub_node ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
 target_link_libraries(pub_node ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
+
+add_executable(save_image src/save_image.cpp src/base64.cpp)
+add_dependencies(save_image ${catkin_EXPORTED_TARGETS} ${catkin_INCLUDE_DIRS})
+target_link_libraries(save_image ${catkin_LIBRARIES}  ${OpenCV_LIBRARIES})
